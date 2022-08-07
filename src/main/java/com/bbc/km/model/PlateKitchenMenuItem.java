@@ -7,7 +7,7 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
 
     private String plateId;
     private String menuItemId;
-    private String status;
+    private ItemStatus status;
     private Integer orderNumber;
     private Integer tableNumber;
     private String clientName;
@@ -29,11 +29,11 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
         this.menuItemId = menuItemId;
     }
 
-    public String getStatus() {
+    public ItemStatus getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(ItemStatus status) {
         this.status = status;
     }
 
