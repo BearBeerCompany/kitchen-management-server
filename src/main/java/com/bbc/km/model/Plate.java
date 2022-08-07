@@ -12,8 +12,8 @@ public class Plate {
     private String description;
     private String color;
     private String manager;
-    private Integer slot;
-    private Boolean enabled;
+    private Integer slot = 0;
+    private Boolean enabled = true;
 
     public String getId() {
         return id;
