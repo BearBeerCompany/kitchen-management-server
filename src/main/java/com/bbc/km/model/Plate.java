@@ -1,27 +1,16 @@
 package com.bbc.km.model;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("plate")
-public class Plate {
+public class Plate extends MongoDocument<String> {
 
-    @Id
-    private String id;
     private String name;
     private String description;
     private String color;
     private String manager;
     private Integer slot = 0;
     private Boolean enabled = true;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
