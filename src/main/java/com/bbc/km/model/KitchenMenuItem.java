@@ -1,24 +1,13 @@
 package com.bbc.km.model;
 
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document("kitchen_menu_item")
-public class KitchenMenuItem {
+public class KitchenMenuItem extends MongoDocument<String> {
 
-    @Id
-    private String id;
     private String name;
     private String description;
     private String categoryId;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;
