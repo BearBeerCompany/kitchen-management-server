@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class PlateKitchenMenuItemCompound {
@@ -35,6 +36,16 @@ public class PlateKitchenMenuItemCompound {
         return dto;
     }
 
+    public List<PlateKitchenMenuItemDTO> getByIds(List<String> ids) {
+        List<PlateKitchenMenuItemDTO> dtoList = pkmiService.getAll()
+            .stream().filter(doc -> ids.contains(doc.getId())).map(doc -> {
+                PlateKitchenMenuItemDTO dto = doc2Dto(doc);
+                return dto;
+            }).collect(Collectors.toList());
+
+        return dtoList;
+    }
+
     public List<PlateKitchenMenuItemDTO> getAll() {
         List<PlateKitchenMenuItemDTO> dtoList = new ArrayList<>();
         List<PlateKitchenMenuItem> docList = pkmiService.getAll();
@@ -46,7 +57,13 @@ public class PlateKitchenMenuItemCompound {
         return dtoList;
     }
 
-    public List<PlateKitchenMenuItemDTO> create(List<PlateKitchenMenuItemDTO> dtoList) {
+    public PlateKitchenMenuItemDTO create(PlateKitchenMenuItemDTO dto) {
+        PlateKitchenMenuItem doc = dto2Doc(dto);
+        PlateKitchenMenuItem newDoc = pkmiService.create(doc);
+        return doc2Dto(newDoc);
+    }
+
+    public List<PlateKitchenMenuItemDTO> createAll(List<PlateKitchenMenuItemDTO> dtoList) {
         List<PlateKitchenMenuItemDTO> newDtoList = new ArrayList<>();
         dtoList.forEach(dto -> {
             PlateKitchenMenuItem doc = dto2Doc(dto);
@@ -57,7 +74,13 @@ public class PlateKitchenMenuItemCompound {
         return newDtoList;
     }
 
-    public List<PlateKitchenMenuItemDTO> update(List<PlateKitchenMenuItemDTO> dtoList) {
+    public PlateKitchenMenuItemDTO update(PlateKitchenMenuItemDTO dto) {
+        PlateKitchenMenuItem doc = dto2Doc(dto);
+        PlateKitchenMenuItem newDoc = pkmiService.update(doc);
+        return doc2Dto(newDoc);
+    }
+
+    public List<PlateKitchenMenuItemDTO> updateAll(List<PlateKitchenMenuItemDTO> dtoList) {
         List<PlateKitchenMenuItemDTO> updatedDtoList = new ArrayList<>();
         dtoList.forEach(dto -> {
             PlateKitchenMenuItem doc = dto2Doc(dto);
@@ -68,7 +91,7 @@ public class PlateKitchenMenuItemCompound {
         return updatedDtoList;
     }
 
-    public Map<String, Boolean> delete(List<String> ids) {
+    public Map<String, Boolean> deleteAll(List<String> ids) {
         Map<String, Boolean> resultMap = new HashMap<>();
         ids.forEach(id -> {
             try {

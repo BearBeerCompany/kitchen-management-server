@@ -3,6 +3,7 @@ package com.bbc.km.dto;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.model.Plate;
+import com.bbc.km.websocket.PKMINotificationSource;
 
 import java.io.Serializable;
 
@@ -16,6 +17,7 @@ public class PlateKitchenMenuItemDTO implements Serializable {
     private Integer tableNumber;
     private String clientName;
     private String notes;
+    private PKMINotificationSource source;
 
     public String getId() {
         return id;
@@ -79,5 +81,13 @@ public class PlateKitchenMenuItemDTO implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public PKMINotificationSource getSource() {
+        return source;
+    }
+
+    public void setSource(PKMINotificationSource source) {
+        this.source = source;
     }
 }
