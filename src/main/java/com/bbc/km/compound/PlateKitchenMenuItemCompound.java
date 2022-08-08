@@ -1,0 +1,121 @@
+package com.bbc.km.compound;
+
+import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.exception.ObjectNotFoundException;
+import com.bbc.km.model.KitchenMenuItem;
+import com.bbc.km.model.Plate;
+import com.bbc.km.model.PlateKitchenMenuItem;
+import com.bbc.km.service.CRUDService;
+import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Component
+public class PlateKitchenMenuItemCompound {
+
+    private final CRUDService<String, PlateKitchenMenuItem> pkmiService;
+    private final CRUDService<String, KitchenMenuItem> kmiService;
+    private final CRUDService<String, Plate> plateService;
+
+    public PlateKitchenMenuItemCompound(
+        CRUDService<String, PlateKitchenMenuItem> pkmiService,
+        CRUDService<String, KitchenMenuItem> kmiService,
+        CRUDService<String, Plate> plateService) {
+        this.pkmiService = pkmiService;
+        this.kmiService = kmiService;
+        this.plateService = plateService;
+    }
+
+    public PlateKitchenMenuItemDTO getById(String id) {
+        PlateKitchenMenuItem pkmiDoc = pkmiService.getById(id);
+        PlateKitchenMenuItemDTO dto = doc2Dto(pkmiDoc);
+        return dto;
+    }
+
+    public List<PlateKitchenMenuItemDTO> getAll() {
+        List<PlateKitchenMenuItemDTO> dtoList = new ArrayList<>();
+        List<PlateKitchenMenuItem> docList = pkmiService.getAll();
+        docList.forEach(doc -> {
+            PlateKitchenMenuItemDTO dto = doc2Dto(doc);
+            dtoList.add(dto);
+        });
+
+        return dtoList;
+    }
+
+    public List<PlateKitchenMenuItemDTO> create(List<PlateKitchenMenuItemDTO> dtoList) {
+        List<PlateKitchenMenuItemDTO> newDtoList = new ArrayList<>();
+        dtoList.forEach(dto -> {
+            PlateKitchenMenuItem doc = dto2Doc(dto);
+            PlateKitchenMenuItem newDoc = pkmiService.create(doc);
+            newDtoList.add(doc2Dto(newDoc));
+        });
+
+        return newDtoList;
+    }
+
+    public List<PlateKitchenMenuItemDTO> update(List<PlateKitchenMenuItemDTO> dtoList) {
+        List<PlateKitchenMenuItemDTO> updatedDtoList = new ArrayList<>();
+        dtoList.forEach(dto -> {
+            PlateKitchenMenuItem doc = dto2Doc(dto);
+            PlateKitchenMenuItem updatedDoc = pkmiService.update(doc);
+            updatedDtoList.add(doc2Dto(updatedDoc));
+        });
+
+        return updatedDtoList;
+    }
+
+    public Map<String, Boolean> delete(List<String> ids) {
+        Map<String, Boolean> resultMap = new HashMap<>();
+        ids.forEach(id -> {
+            try {
+                pkmiService.delete(id);
+                resultMap.put(id, true);
+            } catch (ObjectNotFoundException ex) {
+                resultMap.put(id, false);
+            }
+        });
+        return resultMap;
+    }
+
+    private PlateKitchenMenuItemDTO doc2Dto(PlateKitchenMenuItem doc) {
+        PlateKitchenMenuItemDTO dto = new PlateKitchenMenuItemDTO();
+        String menuItemId = doc.getMenuItemId();
+        String plateId = doc.getPlateId();
+
+        // retrieve menuItem data
+        KitchenMenuItem kmiDoc = kmiService.getById(menuItemId);
+        // retrieve plate data
+        Plate plate = (plateId != null) ? plateService.getById(plateId) : null;
+
+        dto.setId(doc.getId());
+        dto.setMenuItem(kmiDoc);
+        dto.setPlate(plate);
+        dto.setOrderNumber(doc.getOrderNumber());
+        dto.setClientName(doc.getMenuItemId());
+        dto.setStatus(doc.getStatus());
+        dto.setTableNumber(doc.getTableNumber());
+        dto.setNotes(doc.getNotes());
+
+        return dto;
+    }
+
+    private PlateKitchenMenuItem dto2Doc(PlateKitchenMenuItemDTO dto) {
+        PlateKitchenMenuItem doc = new PlateKitchenMenuItem();
+        doc.setMenuItemId(dto.getMenuItem().getId());
+        if (dto.getPlate() != null) {
+            doc.setPlateId(dto.getPlate().getId());
+        }
+        doc.setOrderNumber(dto.getOrderNumber());
+        doc.setTableNumber(dto.getTableNumber());
+        doc.setStatus(dto.getStatus());
+        doc.setClientName(dto.getClientName());
+        doc.setNotes(dto.getNotes());
+
+        return doc;
+    }
+
+}
