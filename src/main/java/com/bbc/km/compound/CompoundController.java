@@ -11,10 +11,10 @@ public interface CompoundController<ID, DTO> {
 
     ResponseEntity<List<DTO>> getAll();
 
-    ResponseEntity<List<DTO>> create(List<DTO> dtoList);
+    ResponseEntity<List<DTO>> createAll(List<DTO> dtoList);
 
-    ResponseEntity<List<DTO>> update(List<DTO> dtoList);
+    ResponseEntity<List<DTO>> updateAll(List<DTO> dtoList);
 
-    ResponseEntity<Map<String, Boolean>> delete(List<ID> ids);
+    ResponseEntity<Map<String, Boolean>> deleteAll(List<ID> ids);
 
 }

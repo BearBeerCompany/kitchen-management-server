@@ -2,6 +2,8 @@ package com.bbc.km.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Document("plate")
 public class Plate extends MongoDocument<String> {
 
@@ -9,7 +11,7 @@ public class Plate extends MongoDocument<String> {
     private String description;
     private String color;
     private String manager;
-    private Integer slot = 0;
+    private List<Integer> slot = List.of(0,0);
     private Boolean enabled = true;
 
     public String getName() {
@@ -44,11 +46,11 @@ public class Plate extends MongoDocument<String> {
         this.manager = manager;
     }
 
-    public Integer getSlot() {
+    public List<Integer> getSlot() {
         return slot;
     }
 
-    public void setSlot(Integer slot) {
+    public void setSlot(List<Integer> slot) {
         this.slot = slot;
     }
 
