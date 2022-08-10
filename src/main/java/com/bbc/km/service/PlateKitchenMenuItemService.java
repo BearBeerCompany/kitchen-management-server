@@ -15,16 +15,20 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     protected String validateOnCreate(PlateKitchenMenuItem dto) {
         StringBuilder builder = new StringBuilder();
 
-        if (dto.getPlateId() == null) {
-            builder.append("Plate Id cannot be null!");
-        }
-
         if (dto.getMenuItemId() == null) {
             builder.append("Item Id cannot be null!");
         }
 
         if (dto.getOrderNumber() == null) {
             builder.append("Order number cannot be null!");
+        }
+
+        if (dto.getTableNumber() == null) {
+            builder.append("Table number cannot be null!");
+        }
+
+        if (dto.getClientName() == null || dto.getClientName().isEmpty()) {
+            builder.append("Client name cannot be null or empty!");
         }
 
         if (dto.getStatus() == null) {
