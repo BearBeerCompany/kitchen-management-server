@@ -16,10 +16,10 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
     }
 
     public DTO getById(ID id) {
-        Optional<DTO> optionalCategory = repository.findById(id);
+        Optional<DTO> optionalItem = repository.findById(id);
 
-        if (optionalCategory.isPresent()) {
-            return optionalCategory.get();
+        if (optionalItem.isPresent()) {
+            return optionalItem.get();
         } else {
             throw new ObjectNotFoundException(id);
         }
@@ -44,9 +44,9 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
         String errors = validateOnUpdate(dto);
 
         if (errors.length() == 0) {
-            Optional<DTO> optionalPlate = repository.findById(dto.getId());
+            Optional<DTO> optionalItem = repository.findById(dto.getId());
 
-            if (optionalPlate.isPresent()) {
+            if (optionalItem.isPresent()) {
                 return repository.save(dto);
             } else {
                 throw new ObjectNotFoundException(dto.getId());
@@ -56,13 +56,15 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
         }
     }
 
-    public void delete(ID id) {
-        Optional<DTO> optionalPlate = repository.findById(id);
+    public DTO delete(ID id) {
+        Optional<DTO> optionalItem = repository.findById(id);
 
-        optionalPlate.ifPresentOrElse(repository::delete,
-                () -> {
-                    throw new ObjectNotFoundException(id);
-                });
+        if (optionalItem.isPresent()) {
+            repository.deleteById(id);
+            return optionalItem.get();
+        } else {
+            throw new ObjectNotFoundException(id);
+        }
     }
 
     protected abstract String validateOnCreate(DTO dto);

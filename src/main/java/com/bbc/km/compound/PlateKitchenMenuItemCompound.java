@@ -91,6 +91,17 @@ public class PlateKitchenMenuItemCompound {
         return updatedDtoList;
     }
 
+    public PlateKitchenMenuItemDTO delete(String id) {
+        PlateKitchenMenuItemDTO result = null;
+        try {
+            PlateKitchenMenuItem item = pkmiService.delete(id);
+            result = doc2Dto(item);
+        } catch (ObjectNotFoundException ex) {
+            // noop
+        }
+        return result;
+    }
+
     public Map<String, Boolean> deleteAll(List<String> ids) {
         Map<String, Boolean> resultMap = new HashMap<>();
         ids.forEach(id -> {
@@ -128,6 +139,7 @@ public class PlateKitchenMenuItemCompound {
 
     private PlateKitchenMenuItem dto2Doc(PlateKitchenMenuItemDTO dto) {
         PlateKitchenMenuItem doc = new PlateKitchenMenuItem();
+        doc.setId(dto.getId());
         doc.setMenuItemId(dto.getMenuItem().getId());
         if (dto.getPlate() != null) {
             doc.setPlateId(dto.getPlate().getId());
