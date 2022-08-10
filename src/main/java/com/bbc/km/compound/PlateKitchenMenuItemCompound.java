@@ -129,7 +129,7 @@ public class PlateKitchenMenuItemCompound {
         dto.setMenuItem(kmiDoc);
         dto.setPlate(plate);
         dto.setOrderNumber(doc.getOrderNumber());
-        dto.setClientName(doc.getMenuItemId());
+        dto.setClientName(doc.getClientName());
         dto.setStatus(doc.getStatus());
         dto.setTableNumber(doc.getTableNumber());
         dto.setNotes(doc.getNotes());
