@@ -7,7 +7,6 @@ import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -103,6 +102,18 @@ public class PlateKitchenMenuItemController implements CompoundController<String
         simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
 
         return ResponseEntity.ok(dtoList);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<PlateKitchenMenuItemDTO> delete(@RequestBody String id) {
+        PlateKitchenMenuItemDTO result = compound.delete(id);
+
+        PKMINotification notification = new PKMINotification();
+        notification.setType(PKMINotificationType.PKMI_DELETE);
+        notification.setPlateKitchenMenuItem(result);
+        simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+
+        return ResponseEntity.ok(result);
     }
 
     @DeleteMapping("/list")
