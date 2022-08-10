@@ -128,6 +128,7 @@ public class PlateKitchenMenuItemCompound {
 
     private PlateKitchenMenuItem dto2Doc(PlateKitchenMenuItemDTO dto) {
         PlateKitchenMenuItem doc = new PlateKitchenMenuItem();
+        doc.setId(dto.getId());
         doc.setMenuItemId(dto.getMenuItem().getId());
         if (dto.getPlate() != null) {
             doc.setPlateId(dto.getPlate().getId());
