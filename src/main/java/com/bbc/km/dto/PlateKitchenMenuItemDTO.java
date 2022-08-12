@@ -3,9 +3,9 @@ package com.bbc.km.dto;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.model.Plate;
-import com.bbc.km.websocket.PKMINotificationSource;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 public class PlateKitchenMenuItemDTO implements Serializable {
 
@@ -17,7 +17,7 @@ public class PlateKitchenMenuItemDTO implements Serializable {
     private Integer tableNumber;
     private String clientName;
     private String notes;
-    private PKMINotificationSource source;
+    private LocalDateTime insertDate;
 
     public String getId() {
         return id;
@@ -83,11 +83,11 @@ public class PlateKitchenMenuItemDTO implements Serializable {
         this.notes = notes;
     }
 
-    public PKMINotificationSource getSource() {
-        return source;
+    public LocalDateTime getInsertDate() {
+        return insertDate;
     }
 
-    public void setSource(PKMINotificationSource source) {
-        this.source = source;
+    public void setInsertDate(LocalDateTime insertDate) {
+        this.insertDate = insertDate;
     }
 }
