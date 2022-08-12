@@ -2,7 +2,7 @@ package com.bbc.km.controller;
 
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.Plate;
-import com.bbc.km.repository.PlateKitchenMenuItemRepository;
+import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.service.PlateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,17 +18,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequestMapping(path = {"/plate"}, consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
 public class PlateController extends RESTController<String, Plate> {
 
-    private final PlateKitchenMenuItemRepository plateKitchenMenuItemRepository;
+    private final PlateKitchenMenuItemService plateKitchenMenuItemService;
 
     public PlateController(PlateService plateService,
-                           PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
+                           PlateKitchenMenuItemService plateKitchenMenuItemService) {
         super(plateService);
-        this.plateKitchenMenuItemRepository = plateKitchenMenuItemRepository;
+        this.plateKitchenMenuItemService = plateKitchenMenuItemService;
     }
-
 
     @GetMapping("/status/{id}")
     public ResponseEntity<List<PlateKitchenMenuItemDTO>> getPlateStatus(@PathVariable("id") String id) {
-        return ResponseEntity.ok(plateKitchenMenuItemRepository.findByPlateId(id));
+        return ResponseEntity.ok(plateKitchenMenuItemService.findByPlateId(id));
     }
 }

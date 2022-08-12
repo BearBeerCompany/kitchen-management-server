@@ -1,11 +1,15 @@
 package com.bbc.km.service;
 
+import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.repository.PlateRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Objects;
 
 @Service
 public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitchenMenuItem> {
@@ -15,6 +19,16 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     protected PlateKitchenMenuItemService(PlateKitchenMenuItemRepository repository, PlateService plateService) {
         super(repository);
         this.plateService = plateService;
+    }
+
+    public List<PlateKitchenMenuItemDTO> findByPlateId(String id) {
+        Objects.requireNonNull(id, "Plate id cannot be null!");
+
+        return ((PlateKitchenMenuItemRepository) repository).findByPlateId(id);
+    }
+
+    public List<PlateKitchenMenuItemDTO> findByPlateIdNull() {
+        return ((PlateKitchenMenuItemRepository) repository).findByPlateIdNull();
     }
 
     @Override
