@@ -57,7 +57,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         Plate nextPlate = null;
         boolean nextPlateChanged = false;
 
-        if (plateKitchenMenuItem.getPlateId().equals(previousItemPlateId)) {
+        if (previousItemPlateId != null && previousItemPlateId.equals(plateKitchenMenuItem.getPlateId())) {
             // same plate
             if (!nextItemStatus.equals(previousItemStatus)) {
                 // status changed
@@ -92,6 +92,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                     // the item was in progress in the previous plate, so decrement its counter
                     previousPlate = plateService.getById(previousItemPlateId);
                     int currentItems = previousPlate.getSlot().get(0);
+                    currentItems--;
                     previousPlate.getSlot().set(0, currentItems);
                     previousPlateChanged = true;
                 }
