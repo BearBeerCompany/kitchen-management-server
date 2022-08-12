@@ -11,22 +11,35 @@ import java.util.List;
 @Repository
 public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKitchenMenuItem, String> {
 
-    @Aggregation(pipeline = {
-        "{'$match':{" +
-            "'_id': '?0'" +
-            "}}",
-        "{'$lookup':{" +
+    String PLATE_LOOKUP = "{'$lookup':{" +
             "'from': 'plate'," +
             "'let': {'searchId': {'$toObjectId': '$plateId'}}," +
             "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchId']}}}]," +
             "'as': 'plate'" +
-            "}}",
-        "{'$lookup':{" +
+            "}}";
+
+    String MENU_ITEM_LOOKUP = "{'$lookup':{" +
             "'from': 'kitchen_menu_item'," +
             "'let': {'searchMenuItemId': {'$toObjectId': '$menuItemId'}}," +
             "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchMenuItemId']}}}]," +
             "'as': 'menuItem'" +
+            "}}";
+
+    String PKMI_DTO_PROJECTION = "{'$project': " +
+            "{'status': 1," +
+            "'notes': 1," +
+            "'clientName': 1," +
+            "'tableNumber': 1," +
+            "'orderNumber': 1," +
+            "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
+            "}}";
+
+    @Aggregation(pipeline = {
+        "{'$match':{" +
+            "'_id': '?0'" +
             "}}",
+        PLATE_LOOKUP,
+        MENU_ITEM_LOOKUP,
         "{'$project': " +
             "{'status': 1," +
                 "'notes': 1," +
@@ -43,20 +56,17 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
         "{'$match':{" +
                 "'plateId': '?0'" +
                 "}}",
-        "{'$lookup':{" +
-                "'from': 'kitchen_menu_item'," +
-                "'let': {'searchMenuItemId': {'$toObjectId': '$menuItemId'}}," +
-                "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchMenuItemId']}}}]," +
-                "'as': 'menuItem'" +
-            "}}",
-        "{'$project': " +
-                "{'status': 1," +
-                "'notes': 1," +
-                "'clientName': 1," +
-                "'tableNumber': 1," +
-                "'orderNumber': 1," +
-                "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
-            "}}"
+        MENU_ITEM_LOOKUP,
+        PKMI_DTO_PROJECTION
     })
     List<PlateKitchenMenuItemDTO> findByPlateId(String id);
+
+    @Aggregation(pipeline = {
+        "{'$match':{" +
+                "'plateId': null" +
+            "}}",
+        MENU_ITEM_LOOKUP,
+        PKMI_DTO_PROJECTION
+    })
+    List<PlateKitchenMenuItemDTO> findByPlateIdNull();
 }

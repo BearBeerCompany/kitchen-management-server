@@ -3,6 +3,7 @@ package com.bbc.km.controller;
 import com.bbc.km.compound.CompoundController;
 import com.bbc.km.compound.PlateKitchenMenuItemCompound;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
 import org.springframework.http.ResponseEntity;
@@ -29,12 +30,21 @@ public class PlateKitchenMenuItemController implements CompoundController<String
 
     private static final String NOTIFICATION_TOPIC = "/topic/pkmi";
 
+    private final PlateKitchenMenuItemService plateKitchenMenuItemService;
     private final PlateKitchenMenuItemCompound compound;
     private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public PlateKitchenMenuItemController(PlateKitchenMenuItemCompound compound, SimpMessagingTemplate simpMessagingTemplate) {
+    public PlateKitchenMenuItemController(PlateKitchenMenuItemService plateKitchenMenuItemService,
+                                          PlateKitchenMenuItemCompound compound,
+                                          SimpMessagingTemplate simpMessagingTemplate) {
+        this.plateKitchenMenuItemService = plateKitchenMenuItemService;
         this.compound = compound;
         this.simpMessagingTemplate = simpMessagingTemplate;
+    }
+
+    @GetMapping("/unassigned")
+    public ResponseEntity<List<PlateKitchenMenuItemDTO>> empty() {
+        return ResponseEntity.ok(plateKitchenMenuItemService.findByPlateIdNull());
     }
 
     @GetMapping("/{id}")
