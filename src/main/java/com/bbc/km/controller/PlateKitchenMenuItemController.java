@@ -43,7 +43,7 @@ public class PlateKitchenMenuItemController implements CompoundController<String
     }
 
     @GetMapping("/unassigned")
-    public ResponseEntity<List<PlateKitchenMenuItemDTO>> empty() {
+    public ResponseEntity<List<PlateKitchenMenuItemDTO>> getUnassigned() {
         return ResponseEntity.ok(plateKitchenMenuItemService.findByPlateIdNull());
     }
 
