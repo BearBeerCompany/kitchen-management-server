@@ -11,6 +11,7 @@ public class PlateService extends CRUDService<String, Plate> {
         super(plateRepository);
     }
 
+
     @Override
     protected String validateOnCreate(Plate dto) {
         StringBuilder builder = new StringBuilder();

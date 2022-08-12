@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKitchenMenuItem, String> {
 
@@ -35,5 +37,26 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
             "}}"
     })
-    public PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
+    PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
+
+    @Aggregation(pipeline = {
+        "{'$match':{" +
+                "'plateId': '?0'" +
+                "}}",
+        "{'$lookup':{" +
+                "'from': 'kitchen_menu_item'," +
+                "'let': {'searchMenuItemId': {'$toObjectId': '$menuItemId'}}," +
+                "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchMenuItemId']}}}]," +
+                "'as': 'menuItem'" +
+            "}}",
+        "{'$project': " +
+                "{'status': 1," +
+                "'notes': 1," +
+                "'clientName': 1," +
+                "'tableNumber': 1," +
+                "'orderNumber': 1," +
+                "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
+            "}}"
+    })
+    List<PlateKitchenMenuItemDTO> findByPlateId(String id);
 }
