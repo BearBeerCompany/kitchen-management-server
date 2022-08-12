@@ -2,7 +2,7 @@ package com.bbc.km.model;
 
 import org.springframework.data.annotation.Id;
 
-public abstract class MongoDocument<ID> {
+public abstract class MongoDocument<ID> extends Auditable {
 
     @Id
     private ID id;
