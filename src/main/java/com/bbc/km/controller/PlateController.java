@@ -1,6 +1,8 @@
 package com.bbc.km.controller;
 
+import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.Plate;
+import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.service.PlateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
