@@ -147,6 +147,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
 
     @Override
     public PlateKitchenMenuItem delete(String s) {
+        // todo
         return super.delete(s);
     }
 
