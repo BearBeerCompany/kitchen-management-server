@@ -43,7 +43,7 @@ public class PlateKitchenMenuItemController implements CompoundController<String
         return ResponseEntity.ok(compound.getById(id));
     }
 
-    @GetMapping("/ids")
+    @PostMapping("/ids")
     public ResponseEntity<List<PlateKitchenMenuItemDTO>> getByIds(@RequestBody List<String> ids) {
         return ResponseEntity.ok(compound.getByIds(ids));
     }

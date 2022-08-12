@@ -133,6 +133,7 @@ public class PlateKitchenMenuItemCompound {
         dto.setStatus(doc.getStatus());
         dto.setTableNumber(doc.getTableNumber());
         dto.setNotes(doc.getNotes());
+        dto.setInsertDate(doc.getCreatedDate());
 
         return dto;
     }
@@ -149,6 +150,9 @@ public class PlateKitchenMenuItemCompound {
         doc.setStatus(dto.getStatus());
         doc.setClientName(dto.getClientName());
         doc.setNotes(dto.getNotes());
+        if (dto.getInsertDate() != null) {
+            doc.setCreatedDate(dto.getInsertDate());
+        }
 
         return doc;
     }
