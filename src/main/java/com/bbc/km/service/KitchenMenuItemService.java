@@ -4,11 +4,20 @@ import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.repository.KitchenMenuItemRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Objects;
+
 @Service
 public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem> {
 
     protected KitchenMenuItemService(KitchenMenuItemRepository repository) {
         super(repository);
+    }
+
+    public List<KitchenMenuItem> getItemsByCategoryId(String categoryId) {
+        Objects.requireNonNull(categoryId, "Category Id cannot be null!");
+
+        return ((KitchenMenuItemRepository) repository).findByCategoryId(categoryId);
     }
 
     @Override
