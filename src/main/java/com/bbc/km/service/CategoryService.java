@@ -1,14 +1,31 @@
 package com.bbc.km.service;
 
 import com.bbc.km.model.Category;
+import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.repository.CategoryRepository;
+import com.bbc.km.repository.KitchenMenuItemRepository;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CategoryService extends CRUDService<String, Category> {
 
-    public CategoryService(CategoryRepository categoryRepository) {
+    private final KitchenMenuItemRepository kitchenMenuItemRepository;
+
+    public CategoryService(CategoryRepository categoryRepository,
+                           KitchenMenuItemRepository kitchenMenuItemRepository) {
         super(categoryRepository);
+        this.kitchenMenuItemRepository = kitchenMenuItemRepository;
+    }
+
+    @Override
+    public Category delete(String id) {
+
+        List<KitchenMenuItem> categoryItems = kitchenMenuItemRepository.findByCategoryId(id);
+        kitchenMenuItemRepository.deleteAll(categoryItems);
+
+        return super.delete(id);
     }
 
     @Override
