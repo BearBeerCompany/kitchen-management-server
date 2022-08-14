@@ -5,20 +5,24 @@ import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
-import com.bbc.km.repository.PlateRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
 public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitchenMenuItem> {
 
-    private PlateService plateService;
+    private final PlateService plateService;
+    private final StatsService statsService;
 
-    protected PlateKitchenMenuItemService(PlateKitchenMenuItemRepository repository, PlateService plateService) {
+    protected PlateKitchenMenuItemService(PlateKitchenMenuItemRepository repository,
+                                          PlateService plateService,
+                                          StatsService statsService) {
         super(repository);
         this.plateService = plateService;
+        this.statsService = statsService;
     }
 
     public List<PlateKitchenMenuItemDTO> findByPlateId(String id) {
@@ -53,6 +57,8 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             plate.getSlot().set(0, currentItems);
             plateService.update(plate);
         }
+
+        statsService.update(null, result.getStatus());
         return result;
     }
 
@@ -141,13 +147,14 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         if (nextPlateChanged) {
             plateService.update(nextPlate);
         }
-
+        statsService.update(previousItemStatus, result.getStatus());
         return result;
     }
 
     @Override
     public PlateKitchenMenuItem delete(String s) {
         // todo
+        statsService.update(this.getById(s).getStatus(), ItemStatus.CANCELLED);
         return super.delete(s);
     }
 
