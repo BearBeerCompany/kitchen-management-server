@@ -5,10 +5,7 @@ import com.bbc.km.model.Plate;
 import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.service.PlateService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -29,5 +26,11 @@ public class PlateController extends RESTController<String, Plate> {
     @GetMapping("/status/{id}")
     public ResponseEntity<List<PlateKitchenMenuItemDTO>> getPlateStatus(@PathVariable("id") String id) {
         return ResponseEntity.ok(plateKitchenMenuItemService.findByPlateId(id));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<Plate> patchPlate(@PathVariable("id") String id,
+                                            @RequestParam(name = "enable") Boolean enable) {
+        return ResponseEntity.ok(((PlateService)super.service).patchEnable(id, enable));
     }
 }
