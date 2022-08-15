@@ -46,7 +46,7 @@ public class StatsServiceTest {
     }
 
     @BeforeAll
-    public void beforeEach() {
+    public void beforeAll() {
         Mockito.when(statsRepository.findByDateRange(any(), any(), eq(singlePage)))
                 .thenAnswer(invocationOnMock -> {
                             LocalDateTime from = invocationOnMock.getArgument(0);
