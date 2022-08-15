@@ -13,5 +13,5 @@ import java.util.List;
 public interface StatsRepository extends MongoRepository<Stats, String> {
 
     @Query("{'createdDate' : { $gte: ?0, $lte: ?1 } }")
-    public List<Stats> findByDateRange(LocalDateTime from, LocalDateTime to, Pageable pageable);
+    List<Stats> findByDateRange(LocalDateTime from, LocalDateTime to, Pageable pageable);
 }
