@@ -31,6 +31,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
             "'clientName': 1," +
             "'tableNumber': 1," +
             "'orderNumber': 1," +
+            "'createdDate': 1," +
             "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
             "}}";
 
@@ -46,6 +47,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "'clientName': 1," +
                 "'tableNumber': 1," +
                 "'orderNumber': 1," +
+                "'createdDate': 1," +
                 "'plate': { $arrayElemAt: ['$plate', 0] }" +
                 "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
             "}}"

@@ -17,7 +17,7 @@ public class PlateKitchenMenuItemDTO implements Serializable {
     private Integer tableNumber;
     private String clientName;
     private String notes;
-    private LocalDateTime insertDate;
+    private LocalDateTime createdDate;
 
     public String getId() {
         return id;
@@ -83,11 +83,11 @@ public class PlateKitchenMenuItemDTO implements Serializable {
         this.notes = notes;
     }
 
-    public LocalDateTime getInsertDate() {
-        return insertDate;
+    public LocalDateTime getCreatedDate() {
+        return createdDate;
     }
 
-    public void setInsertDate(LocalDateTime insertDate) {
-        this.insertDate = insertDate;
+    public void setCreatedDate(LocalDateTime createdDate) {
+        this.createdDate = createdDate;
     }
 }
