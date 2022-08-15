@@ -3,6 +3,7 @@ package com.bbc.km.service;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Stats;
 import com.bbc.km.repository.StatsRepository;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +20,10 @@ public class StatsService {
 
     private final static LocalTime midnight = LocalTime.MIDNIGHT;
     private final static LocalDate today = LocalDate.now(ZoneId.systemDefault());
-    private final static LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
-    private final static LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1);
-    private final static PageRequest singlePage = PageRequest.of(0, 1);
+
+    public final static LocalDateTime todayMidnight = LocalDateTime.of(today, midnight);
+    public final static LocalDateTime tomorrowMidnight = todayMidnight.plusDays(1);
+    public final static PageRequest singlePage = PageRequest.of(0, 1);
 
     private final StatsRepository statsRepository;
 
@@ -30,7 +32,9 @@ public class StatsService {
     }
 
     public List<Stats> get(String from, String to) throws ParseException {
-        Objects.requireNonNull(from, "Starting date must have a value!");
+        if (from == null || Strings.isBlank(from))
+            throw new NullPointerException("Starting date must have a value!");
+
         Date fromDate = new SimpleDateFormat("dd/MM/yyyy").parse(from);
 
         if (to == null) {
@@ -38,7 +42,7 @@ public class StatsService {
             fromCalendar.setTime(fromDate);
 
             Calendar todayCalendar = Calendar.getInstance();
-            fromCalendar.setTime(new Date());
+            todayCalendar.setTime(new Date());
 
             if (todayCalendar.get(Calendar.YEAR) == fromCalendar.get(Calendar.YEAR)
                     && todayCalendar.get(Calendar.MONTH) == fromCalendar.get(Calendar.MONTH)
@@ -72,8 +76,8 @@ public class StatsService {
         return !today().isEmpty();
     }
 
-    public void create() {
-        statsRepository.save(new Stats(0));
+    public Stats create() {
+        return statsRepository.save(new Stats(0));
     }
 
     public void update(ItemStatus previous, ItemStatus now) {
