@@ -56,8 +56,14 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
 
     @Aggregation(pipeline = {
         "{'$match':{" +
-                "'plateId': '?0'" +
-                "}}",
+                "'$and':[" +
+                "{'$or': [" +
+                    "{'status': 'TODO'}" +
+                    "{'status': 'PROGRESS'}" +
+                "]}" +
+                "{'plateId': '?0'}" +
+                "]" +
+            "}}",
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
     })
@@ -65,7 +71,13 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
 
     @Aggregation(pipeline = {
         "{'$match':{" +
-                "'plateId': null" +
+                "'$and':[" +
+                "{'$or': [" +
+                    "{'status': 'TODO'}" +
+                    "{'status': 'PROGRESS'}" +
+                "]}" +
+                "{'plateId': null}" +
+                "]" +
             "}}",
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
