@@ -5,6 +5,7 @@ import com.bbc.km.exception.PlateNotEmptyException;
 import com.bbc.km.model.Plate;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.repository.PlateRepository;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -12,11 +13,12 @@ import java.util.List;
 @Service
 public class PlateService extends CRUDService<String, Plate> {
 
-    private final PlateKitchenMenuItemRepository plateKitchenMenuItemRepository;
+    private final PlateKitchenMenuItemService plateKitchenMenuItemService;
 
-    public PlateService(PlateRepository plateRepository, PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
+    public PlateService(PlateRepository plateRepository,
+                        @Lazy PlateKitchenMenuItemService plateKitchenMenuItemService) {
         super(plateRepository);
-        this.plateKitchenMenuItemRepository = plateKitchenMenuItemRepository;
+        this.plateKitchenMenuItemService = plateKitchenMenuItemService;
     }
 
     @Override
@@ -54,7 +56,7 @@ public class PlateService extends CRUDService<String, Plate> {
     }
 
     public Plate patchEnable(final String id, final Boolean enable) {
-        List<PlateKitchenMenuItemDTO> items = plateKitchenMenuItemRepository.findByPlateId(id);
+        List<PlateKitchenMenuItemDTO> items = plateKitchenMenuItemService.findByPlateId(id);
 
         if(!enable && !items.isEmpty()) {
             throw new PlateNotEmptyException("The plate cannot be turned off, please remove all items before shutting down");
