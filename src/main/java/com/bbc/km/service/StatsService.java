@@ -5,6 +5,7 @@ import com.bbc.km.model.Stats;
 import com.bbc.km.repository.StatsRepository;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
@@ -64,7 +65,7 @@ public class StatsService {
             LocalDateTime tomorrowSelectedFromMidnight = LocalDateTime.of(toDate.toInstant()
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate(), midnight).plusDays(1);
-            return statsRepository.findByDateRange(selectedFromMidnight, tomorrowSelectedFromMidnight, singlePage);
+            return statsRepository.findByDateRange(selectedFromMidnight, tomorrowSelectedFromMidnight, Pageable.unpaged());
         }
     }
 
