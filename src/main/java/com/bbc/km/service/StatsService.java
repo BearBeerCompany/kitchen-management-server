@@ -89,6 +89,10 @@ public class StatsService {
         else
             stats.addCount();
         map.put(now, map.get(now) + 1);
+
+        if (now.equals(ItemStatus.CANCELLED))
+            stats.setCount(stats.getCount() - 1);
+
         statsRepository.save(stats);
     }
 }
