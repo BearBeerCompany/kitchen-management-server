@@ -1,13 +1,14 @@
 package com.bbc.km.service;
 
+import com.bbc.km.controller.ErrorHandlerController;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.exception.PlateOffException;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -49,6 +50,9 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                     plateKitchenMenuItem.setStatus(ItemStatus.PROGRESS);
                     currentItems++;
                 }
+            } else {
+                throw new PlateOffException("Selected plate is not enabled yet",
+                        new ErrorHandlerController.ErrorInfo(plateKitchenMenuItem.getPlateId()));
             }
         }
 
@@ -82,6 +86,11 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             if (!nextItemStatus.equals(previousItemStatus)) {
                 // status changed
                 nextPlate = plateService.getById(plateKitchenMenuItem.getPlateId());
+                if (!nextPlate.getEnabled()) {
+                    throw new PlateOffException("Selected plate is not enabled yet",
+                            new ErrorHandlerController.ErrorInfo(plateKitchenMenuItem.getPlateId()));
+                }
+
                 int currentItems = nextPlate.getSlot().get(0);
                 int maxItems = nextPlate.getSlot().get(1);
 
@@ -119,10 +128,16 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             }
 
             if (nextItemPlateId != null) {
+
+                nextPlate = plateService.getById(plateKitchenMenuItem.getPlateId());
+                if (!nextPlate.getEnabled()) {
+                    throw new PlateOffException("Selected plate is not enabled yet",
+                            new ErrorHandlerController.ErrorInfo(plateKitchenMenuItem.getPlateId()));
+                }
+
                 // item moved to an existing plate
                 if (nextItemStatus.equals(ItemStatus.PROGRESS)) {
                     // check if almost one slot is free in the next plate, otherwise queue the item
-                    nextPlate = plateService.getById(plateKitchenMenuItem.getPlateId());
                     int currentItems = nextPlate.getSlot().get(0);
                     int maxItems = nextPlate.getSlot().get(1);
                     if (currentItems < maxItems) {

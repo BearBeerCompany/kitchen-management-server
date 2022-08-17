@@ -1,6 +1,6 @@
 package com.bbc.km.controller;
 
-import com.bbc.km.exception.PlateNotEmptyException;
+import com.bbc.km.exception.PlateOffException;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,16 +16,15 @@ public class ErrorHandlerController {
 
     @ExceptionHandler({Exception.class})
     protected ResponseEntity<ErrorResponse> handleGenericException(Exception exception, WebRequest request) {
-        return this._buildError(exception);
+        return this._buildError(exception, null);
     }
 
-    @ExceptionHandler(PlateNotEmptyException.class)
-    public ResponseEntity<ErrorResponse> handlePlateNotEmptyException(PlateNotEmptyException exception,
-                                                                      WebRequest request) {
-        return _buildError(exception);
+    @ExceptionHandler({PlateOffException.class})
+    protected ResponseEntity<ErrorResponse> handlePlateOffExceptionException(PlateOffException exception, WebRequest request) {
+        return this._buildError(exception, exception.getInfo());
     }
 
-    private ResponseEntity<ErrorResponse> _buildError(Exception exception) {
+    private ResponseEntity<ErrorResponse> _buildError(Exception exception, ErrorInfo errorInfo) {
 
         HttpStatus httpCode = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorMessage;
@@ -42,13 +41,47 @@ public class ErrorHandlerController {
 
         final ErrorResponse err = new ErrorResponse(
                 LocalDateTime.now().toString(),
-                1,
                 httpCode.value(),
                 httpCode.getReasonPhrase(),
                 errorMessage
         );
 
+        if (errorInfo != null) {
+            err.setErrorCode(errorInfo.getErrorCode());
+            err.setCauseId(errorInfo.getCauseId());
+        }
+
         return ResponseEntity.status(httpCode).body(err);
+    }
+
+    public static class ErrorInfo {
+        private Integer errorCode = 1;
+        private String causeId;
+
+        public ErrorInfo(Integer errorCode, String causeId) {
+            this.errorCode = errorCode;
+            this.causeId = causeId;
+        }
+
+        public ErrorInfo(String causeId) {
+            this.causeId = causeId;
+        }
+
+        public Integer getErrorCode() {
+            return errorCode;
+        }
+
+        public void setErrorCode(Integer errorCode) {
+            this.errorCode = errorCode;
+        }
+
+        public String getCauseId() {
+            return causeId;
+        }
+
+        public void setCauseId(String causeId) {
+            this.causeId = causeId;
+        }
     }
 
     public static class ErrorResponse {
@@ -58,13 +91,13 @@ public class ErrorHandlerController {
         private Integer httpCode;
         private String message;
         private String cause;
+        private String causeId;
 
         public ErrorResponse() {
         }
 
-        public ErrorResponse(String timestamp, Integer errorCode, Integer httpCode, String message, String cause) {
+        public ErrorResponse(String timestamp, Integer httpCode, String message, String cause) {
             this.timestamp = timestamp;
-            this.errorCode = errorCode;
             this.httpCode = httpCode;
             this.message = message;
             this.cause = cause;
@@ -108,6 +141,14 @@ public class ErrorHandlerController {
 
         public void setCause(String cause) {
             this.cause = cause;
+        }
+
+        public String getCauseId() {
+            return causeId;
+        }
+
+        public void setCauseId(String causeId) {
+            this.causeId = causeId;
         }
     }
 }
