@@ -2,9 +2,11 @@ package com.bbc.km.compound;
 
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.exception.ObjectNotFoundException;
+import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
+import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.service.CRUDService;
 import org.springframework.stereotype.Component;
 
@@ -20,14 +22,16 @@ public class PlateKitchenMenuItemCompound {
     private final CRUDService<String, PlateKitchenMenuItem> pkmiService;
     private final CRUDService<String, KitchenMenuItem> kmiService;
     private final CRUDService<String, Plate> plateService;
+    private final PlateKitchenMenuItemRepository plateKitchenMenuItemRepository;
 
     public PlateKitchenMenuItemCompound(
-        CRUDService<String, PlateKitchenMenuItem> pkmiService,
-        CRUDService<String, KitchenMenuItem> kmiService,
-        CRUDService<String, Plate> plateService) {
+            CRUDService<String, PlateKitchenMenuItem> pkmiService,
+            CRUDService<String, KitchenMenuItem> kmiService,
+            CRUDService<String, Plate> plateService, PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
         this.pkmiService = pkmiService;
         this.kmiService = kmiService;
         this.plateService = plateService;
+        this.plateKitchenMenuItemRepository = plateKitchenMenuItemRepository;
     }
 
     public PlateKitchenMenuItemDTO getById(String id) {
@@ -46,15 +50,9 @@ public class PlateKitchenMenuItemCompound {
         return dtoList;
     }
 
-    public List<PlateKitchenMenuItemDTO> getAll() {
-        List<PlateKitchenMenuItemDTO> dtoList = new ArrayList<>();
-        List<PlateKitchenMenuItem> docList = pkmiService.getAll();
-        docList.forEach(doc -> {
-            PlateKitchenMenuItemDTO dto = doc2Dto(doc);
-            dtoList.add(dto);
-        });
-
-        return dtoList;
+    public List<PlateKitchenMenuItemDTO> getAll(List<ItemStatus> statuses) {
+        statuses = statuses != null ? statuses : List.of(ItemStatus.values());
+        return plateKitchenMenuItemRepository.findAllByStatus(statuses);
     }
 
     public PlateKitchenMenuItemDTO create(PlateKitchenMenuItemDTO dto) {
