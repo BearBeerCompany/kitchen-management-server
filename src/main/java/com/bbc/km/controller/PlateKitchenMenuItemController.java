@@ -3,19 +3,13 @@ package com.bbc.km.controller;
 import com.bbc.km.compound.CompoundController;
 import com.bbc.km.compound.PlateKitchenMenuItemCompound;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.model.ItemStatus;
 import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,15 +47,19 @@ public class PlateKitchenMenuItemController implements CompoundController<String
         return ResponseEntity.ok(compound.getById(id));
     }
 
+    @Override
+    public ResponseEntity<List<PlateKitchenMenuItemDTO>> getAll() {
+        return null;
+    }
+
     @PostMapping("/ids")
     public ResponseEntity<List<PlateKitchenMenuItemDTO>> getByIds(@RequestBody List<String> ids) {
         return ResponseEntity.ok(compound.getByIds(ids));
     }
 
     @GetMapping
-    @Override
-    public ResponseEntity<List<PlateKitchenMenuItemDTO>> getAll() {
-        return ResponseEntity.ok(compound.getAll());
+    public ResponseEntity<List<PlateKitchenMenuItemDTO>> getAll(@RequestParam(name = "statuses", required = false) List<ItemStatus> statuses) {
+        return ResponseEntity.ok(compound.getAll(statuses));
     }
 
     @PostMapping

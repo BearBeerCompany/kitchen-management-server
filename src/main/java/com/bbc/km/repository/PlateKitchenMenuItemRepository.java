@@ -1,6 +1,7 @@
 package com.bbc.km.repository;
 
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -53,6 +54,25 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
             "}}"
     })
     PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
+
+    @Aggregation(pipeline = {
+            "{'$match':{" +
+                    "'$expr':{'$in':['$status', ?0]}" +
+                    "}}",
+            PLATE_LOOKUP,
+            MENU_ITEM_LOOKUP,
+            "{'$project': " +
+                    "{'status': 1," +
+                    "'notes': 1," +
+                    "'clientName': 1," +
+                    "'tableNumber': 1," +
+                    "'orderNumber': 1," +
+                    "'createdDate': 1," +
+                    "'plate': { $arrayElemAt: ['$plate', 0] }" +
+                    "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
+                    "}}"
+    })
+    List<PlateKitchenMenuItemDTO> findAllByStatus(List<ItemStatus> statuses);
 
     @Aggregation(pipeline = {
         "{'$match':{" +
