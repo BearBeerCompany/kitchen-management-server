@@ -62,7 +62,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             plateService.update(plate);
         }
 
-        statsService.update(null, result.getStatus());
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), null, result.getStatus());
         return result;
     }
 
@@ -128,6 +128,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             }
 
             if (nextItemPlateId != null) {
+
                 nextPlate = plateService.getById(plateKitchenMenuItem.getPlateId());
                 if (!nextPlate.getEnabled()) {
                     throw new PlateOffException("Selected plate is not enabled yet",
@@ -161,7 +162,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         if (nextPlateChanged) {
             plateService.update(nextPlate);
         }
-        statsService.update(previousItemStatus, result.getStatus());
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), previousItemStatus, result.getStatus());
         return result;
     }
 
@@ -177,7 +178,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             plate.getSlot().set(0, currentItems);
             this.plateService.update(plate);
         }
-        statsService.update(itemStatus, ItemStatus.CANCELLED);
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), plateKitchenMenuItem.getStatus(), null);
         return super.delete(s);
     }
 

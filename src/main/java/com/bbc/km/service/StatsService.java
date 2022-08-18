@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -81,17 +82,33 @@ public class StatsService {
         return statsRepository.save(new Stats(0));
     }
 
-    public void update(ItemStatus previous, ItemStatus now) {
-        Stats stats = statsRepository.findByDateRange(todayMidnight, tomorrowMidnight, singlePage).get(0);
-        Map<ItemStatus, Integer> map = stats.getStatusCount();
-        if (previous != null)
-            map.put(previous, map.get(previous) - 1);
-        else
-            stats.addCount();
-        map.put(now, map.get(now) + 1);
+    public void update(LocalDateTime date, ItemStatus previous, ItemStatus now) {
+        Stats stats;
+        if (date == null) {
+            stats = statsRepository.findByDateRange(todayMidnight, tomorrowMidnight, singlePage).get(0);
+        } else {
+            try {
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+                stats = get(date.format(formatter), null).get(0);
+            } catch (ParseException exception) {
+                //TODO: handle with custom exp
+                throw new RuntimeException(exception);
+            }
+        }
 
-        if (now.equals(ItemStatus.CANCELLED))
+        Map<ItemStatus, Integer> map = stats.getStatusCount();
+
+        if (now != null) {
+            map.put(now, map.get(now) + 1);
+
+            if (previous != null)
+                map.put(previous, map.get(previous) - 1);
+            else
+                stats.addCount();
+        } else {
             stats.setCount(stats.getCount() - 1);
+            map.put(previous, map.get(previous) - 1);
+        }
 
         statsRepository.save(stats);
     }

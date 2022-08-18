@@ -84,7 +84,7 @@ public class StatsServiceTest {
 
         assertEquals(today.getStatusCount().get(ItemStatus.DONE), 0);
 
-        statsService.update(ItemStatus.PROGRESS, ItemStatus.DONE);
+        statsService.update(todayMidnight, ItemStatus.PROGRESS, ItemStatus.DONE);
 
         assertEquals(today.getStatusCount().get(ItemStatus.DONE), 1);
     }
@@ -96,7 +96,7 @@ public class StatsServiceTest {
 
         assertEquals(today.getCount(), 0);
 
-        statsService.update(null, ItemStatus.TODO);
+        statsService.update(todayMidnight, null, ItemStatus.TODO);
 
         assertEquals(today.getStatusCount().get(ItemStatus.TODO), 1);
         assertEquals(today.getCount(), 1);
