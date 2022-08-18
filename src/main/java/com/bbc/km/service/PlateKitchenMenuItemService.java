@@ -62,7 +62,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             plateService.update(plate);
         }
 
-        statsService.update(null, result.getStatus());
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), null, result.getStatus());
         return result;
     }
 
@@ -162,14 +162,14 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         if (nextPlateChanged) {
             plateService.update(nextPlate);
         }
-        statsService.update(previousItemStatus, result.getStatus());
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), previousItemStatus, result.getStatus());
         return result;
     }
 
     @Override
     public PlateKitchenMenuItem delete(String s) {
         // todo
-        statsService.update(this.getById(s).getStatus(), ItemStatus.CANCELLED);
+        statsService.update(repository.findById(s).get().getCreatedDate(), this.getById(s).getStatus(), null);
         return super.delete(s);
     }
 
