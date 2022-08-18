@@ -110,12 +110,6 @@ public class StatsService {
             map.put(previous, map.get(previous) - 1);
         }
 
-        if(stats.getCount() < 0)
-            stats.setCount(0);
-
-        if(map.get(previous) < 0)
-            map.put(previous, 0);
-
         statsRepository.save(stats);
     }
 }

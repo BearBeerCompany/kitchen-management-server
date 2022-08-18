@@ -178,7 +178,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             plate.getSlot().set(0, currentItems);
             this.plateService.update(plate);
         }
-        statsService.update(itemStatus, ItemStatus.CANCELLED);
+        statsService.update(plateKitchenMenuItem.getCreatedDate(), plateKitchenMenuItem.getStatus(), null);
         return super.delete(s);
     }
 
