@@ -168,8 +168,17 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
 
     @Override
     public PlateKitchenMenuItem delete(String s) {
-        // todo
-        statsService.update(repository.findById(s).get().getCreatedDate(), this.getById(s).getStatus(), null);
+        PlateKitchenMenuItem plateKitchenMenuItem = this.getById(s);
+        ItemStatus itemStatus = plateKitchenMenuItem.getStatus();
+        if (itemStatus.equals(ItemStatus.PROGRESS)) {
+            // update counters for plate
+            Plate plate = plateService.getById(plateKitchenMenuItem.getPlateId());
+            Integer currentItems = plate.getSlot().get(0);
+            currentItems--;
+            plate.getSlot().set(0, currentItems);
+            this.plateService.update(plate);
+        }
+        statsService.update(itemStatus, ItemStatus.CANCELLED);
         return super.delete(s);
     }
 
