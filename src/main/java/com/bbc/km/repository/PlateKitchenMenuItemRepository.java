@@ -62,7 +62,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
             PLATE_LOOKUP,
             MENU_ITEM_LOOKUP,
             "{'$project': " +
-                    "{'status': 1," +
+                "{'status': 1," +
                     "'notes': 1," +
                     "'clientName': 1," +
                     "'tableNumber': 1," +
@@ -84,6 +84,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "{'plateId': '?0'}" +
                 "]" +
             "}}",
+        "{'$sort': {'orderNumber': 1} }",
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
     })
@@ -99,6 +100,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "{'plateId': null}" +
                 "]" +
             "}}",
+        "{'$sort': {'orderNumber': 1} }",
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
     })
