@@ -14,7 +14,7 @@ public class PlateKitchenMenuItemDTO implements Serializable {
     private Plate plate;
     private ItemStatus status;
     private Integer orderNumber;
-    private Integer tableNumber;
+    private String tableNumber;
     private String clientName;
     private String notes;
     private LocalDateTime createdDate;
@@ -59,11 +59,11 @@ public class PlateKitchenMenuItemDTO implements Serializable {
         this.orderNumber = orderNumber;
     }
 
-    public Integer getTableNumber() {
+    public String getTableNumber() {
         return tableNumber;
     }
 
-    public void setTableNumber(Integer tableNumber) {
+    public void setTableNumber(String tableNumber) {
         this.tableNumber = tableNumber;
     }
 

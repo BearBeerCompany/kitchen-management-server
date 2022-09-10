@@ -9,7 +9,7 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
     private String menuItemId;
     private ItemStatus status;
     private Integer orderNumber;
-    private Integer tableNumber;
+    private String tableNumber;
     private String clientName;
     private String notes;
 
@@ -45,11 +45,11 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
         this.orderNumber = orderNumber;
     }
 
-    public Integer getTableNumber() {
+    public String getTableNumber() {
         return tableNumber;
     }
 
-    public void setTableNumber(Integer tableNumber) {
+    public void setTableNumber(String tableNumber) {
         this.tableNumber = tableNumber;
     }
 
