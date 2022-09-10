@@ -36,6 +36,8 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
             "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
             "}}";
 
+    String CREATION_DATE_ASC_SORT = "{'$sort': {'createdDate': 1} }";
+
     @Aggregation(pipeline = {
         "{'$match':{" +
             "'_id': '?0'" +
@@ -84,7 +86,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "{'plateId': '?0'}" +
                 "]" +
             "}}",
-        "{'$sort': {'orderNumber': 1} }",
+        CREATION_DATE_ASC_SORT,
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
     })
@@ -100,7 +102,7 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                 "{'plateId': null}" +
                 "]" +
             "}}",
-        "{'$sort': {'orderNumber': 1} }",
+        CREATION_DATE_ASC_SORT,
         MENU_ITEM_LOOKUP,
         PKMI_DTO_PROJECTION
     })
