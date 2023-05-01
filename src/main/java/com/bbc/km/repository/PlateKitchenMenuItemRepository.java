@@ -3,6 +3,8 @@ package com.bbc.km.repository;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.PlateKitchenMenuItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Aggregation;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
@@ -39,32 +41,13 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
     String CREATION_DATE_ASC_SORT = "{'$sort': {'createdDate': 1} }";
 
     @Aggregation(pipeline = {
-        "{'$match':{" +
-            "'_id': '?0'" +
-            "}}",
-        PLATE_LOOKUP,
-        MENU_ITEM_LOOKUP,
-        "{'$project': " +
-            "{'status': 1," +
-                "'notes': 1," +
-                "'clientName': 1," +
-                "'tableNumber': 1," +
-                "'orderNumber': 1," +
-                "'createdDate': 1," +
-                "'plate': { $arrayElemAt: ['$plate', 0] }" +
-                "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
-            "}}"
-    })
-    PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
-
-    @Aggregation(pipeline = {
             "{'$match':{" +
-                    "'$expr':{'$in':['$status', ?0]}" +
+                    "'_id': '?0'" +
                     "}}",
             PLATE_LOOKUP,
             MENU_ITEM_LOOKUP,
             "{'$project': " +
-                "{'status': 1," +
+                    "{'status': 1," +
                     "'notes': 1," +
                     "'clientName': 1," +
                     "'tableNumber': 1," +
@@ -74,37 +57,68 @@ public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKit
                     "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
                     "}}"
     })
-    List<PlateKitchenMenuItemDTO> findAllByStatus(List<ItemStatus> statuses);
+    PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
 
     @Aggregation(pipeline = {
-        "{'$match':{" +
-                "'$and':[" +
-                "{'$or': [" +
+            "{'$match':{" +
+                    "'$expr':{'$in':['$status', ?0]}" +
+                    "}}",
+            PLATE_LOOKUP,
+            MENU_ITEM_LOOKUP,
+            "{'$skip': ?1 }",
+            "{'$limit': ?2 }",
+            "{'$project': " +
+                    "{'status': 1," +
+                    "'notes': 1," +
+                    "'clientName': 1," +
+                    "'tableNumber': 1," +
+                    "'orderNumber': 1," +
+                    "'createdDate': 1," +
+                    "'plate': { $arrayElemAt: ['$plate', 0] }" +
+                    "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
+                    "}}"
+    })
+    List<PlateKitchenMenuItemDTO> findAllByStatus(List<ItemStatus> statuses, Integer offset, Integer limit);
+
+    @Aggregation(pipeline = {
+            "{'$match':{" +
+                    "'$expr':{'$in':['$status', ?0]}" +
+                    "}}",
+            PLATE_LOOKUP,
+            MENU_ITEM_LOOKUP,
+            "{'$count': 'total' }"
+    })
+    Long countByStatus(List<ItemStatus> statuses);
+
+    @Aggregation(pipeline = {
+            "{'$match':{" +
+                    "'$and':[" +
+                    "{'$or': [" +
                     "{'status': 'TODO'}" +
                     "{'status': 'PROGRESS'}" +
-                "]}" +
-                "{'plateId': '?0'}" +
-                "]" +
-            "}}",
-        CREATION_DATE_ASC_SORT,
-        MENU_ITEM_LOOKUP,
-        PKMI_DTO_PROJECTION
+                    "]}" +
+                    "{'plateId': '?0'}" +
+                    "]" +
+                    "}}",
+            CREATION_DATE_ASC_SORT,
+            MENU_ITEM_LOOKUP,
+            PKMI_DTO_PROJECTION
     })
     List<PlateKitchenMenuItemDTO> findByPlateId(String id);
 
     @Aggregation(pipeline = {
-        "{'$match':{" +
-                "'$and':[" +
-                "{'$or': [" +
+            "{'$match':{" +
+                    "'$and':[" +
+                    "{'$or': [" +
                     "{'status': 'TODO'}" +
                     "{'status': 'PROGRESS'}" +
-                "]}" +
-                "{'plateId': null}" +
-                "]" +
-            "}}",
-        CREATION_DATE_ASC_SORT,
-        MENU_ITEM_LOOKUP,
-        PKMI_DTO_PROJECTION
+                    "]}" +
+                    "{'plateId': null}" +
+                    "]" +
+                    "}}",
+            CREATION_DATE_ASC_SORT,
+            MENU_ITEM_LOOKUP,
+            PKMI_DTO_PROJECTION
     })
     List<PlateKitchenMenuItemDTO> findByPlateIdNull();
 }
