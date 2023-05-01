@@ -4,6 +4,7 @@ import com.bbc.km.compound.CompoundController;
 import com.bbc.km.compound.PlateKitchenMenuItemCompound;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.ItemStatus;
+import com.bbc.km.model.PageResponse;
 import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
@@ -58,8 +59,10 @@ public class PlateKitchenMenuItemController implements CompoundController<String
     }
 
     @GetMapping
-    public ResponseEntity<List<PlateKitchenMenuItemDTO>> getAll(@RequestParam(name = "statuses", required = false) List<ItemStatus> statuses) {
-        return ResponseEntity.ok(compound.getAll(statuses));
+    public ResponseEntity<PageResponse<PlateKitchenMenuItemDTO>> getAll(@RequestParam(name = "statuses", required = false) List<ItemStatus> statuses,
+                                                                        @RequestParam(name = "page", defaultValue = "0") Integer page,
+                                                                        @RequestParam(name = "size", defaultValue = "20") Integer size) {
+        return ResponseEntity.ok(compound.getAll(statuses, page, size));
     }
 
     @PostMapping

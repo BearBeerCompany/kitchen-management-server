@@ -2,12 +2,11 @@ package com.bbc.km.compound;
 
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.exception.ObjectNotFoundException;
-import com.bbc.km.model.ItemStatus;
-import com.bbc.km.model.KitchenMenuItem;
-import com.bbc.km.model.Plate;
-import com.bbc.km.model.PlateKitchenMenuItem;
+import com.bbc.km.model.*;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.service.CRUDService;
+import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -50,9 +49,10 @@ public class PlateKitchenMenuItemCompound {
         return dtoList;
     }
 
-    public List<PlateKitchenMenuItemDTO> getAll(List<ItemStatus> statuses) {
+    public PageResponse<PlateKitchenMenuItemDTO> getAll(List<ItemStatus> statuses, Integer page, Integer size) {
         statuses = statuses != null ? statuses : List.of(ItemStatus.values());
-        return plateKitchenMenuItemRepository.findAllByStatus(statuses);
+        List<PlateKitchenMenuItemDTO> elements = plateKitchenMenuItemRepository.findAllByStatus(statuses, page * size, size);
+        return PageResponse.of(elements, page, size, plateKitchenMenuItemRepository.countByStatus(statuses));
     }
 
     public PlateKitchenMenuItemDTO create(PlateKitchenMenuItemDTO dto) {
