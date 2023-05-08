@@ -2,6 +2,7 @@ package com.bbc.km.controller;
 
 import com.bbc.km.compound.CompoundController;
 import com.bbc.km.compound.PlateKitchenMenuItemCompound;
+import com.bbc.km.dto.DetailedFilterDTO;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.PageResponse;
@@ -60,9 +61,21 @@ public class PlateKitchenMenuItemController implements CompoundController<String
 
     @GetMapping
     public ResponseEntity<PageResponse<PlateKitchenMenuItemDTO>> getAll(@RequestParam(name = "statuses", required = false) List<ItemStatus> statuses,
-                                                                        @RequestParam(name = "page", defaultValue = "0") Integer page,
-                                                                        @RequestParam(name = "size", defaultValue = "20") Integer size) {
-        return ResponseEntity.ok(compound.getAll(statuses, page, size));
+                                                                        @RequestParam(name = "offset", defaultValue = "0", required = false) Integer offset,
+                                                                        @RequestParam(name = "size", defaultValue = "20", required = false) Integer size,
+                                                                        @RequestParam(name = "tableNumber", required = false) String tableNumber,
+                                                                        @RequestParam(name = "clientName", required = false) String clientName,
+                                                                        @RequestParam(name = "categoryId", required = false) String categoryId,
+                                                                        @RequestParam(name = "itemId", required = false) String itemId,
+                                                                        @RequestParam(name = "orderNumber", required = false) Integer orderNumber) {
+        return ResponseEntity.ok(
+                compound.getAll(
+                        statuses,
+                        offset,
+                        size,
+                        new DetailedFilterDTO(tableNumber, clientName, categoryId, itemId, orderNumber)
+                )
+        );
     }
 
     @PostMapping

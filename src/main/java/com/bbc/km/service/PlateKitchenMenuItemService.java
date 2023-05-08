@@ -6,7 +6,7 @@ import com.bbc.km.exception.PlateOffException;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
-import com.bbc.km.repository.PlateKitchenMenuItemRepository;
+import com.bbc.km.repository.PlateKitchenMenuItemJPARepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     private final PlateService plateService;
     private final StatsService statsService;
 
-    protected PlateKitchenMenuItemService(PlateKitchenMenuItemRepository repository,
+    protected PlateKitchenMenuItemService(PlateKitchenMenuItemJPARepository repository,
                                           PlateService plateService,
                                           StatsService statsService) {
         super(repository);
@@ -29,11 +29,11 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     public List<PlateKitchenMenuItemDTO> findByPlateId(String id) {
         Objects.requireNonNull(id, "Plate id cannot be null!");
 
-        return ((PlateKitchenMenuItemRepository) repository).findByPlateId(id);
+        return ((PlateKitchenMenuItemJPARepository) repository).findByPlateId(id);
     }
 
     public List<PlateKitchenMenuItemDTO> findByPlateIdNull() {
-        return ((PlateKitchenMenuItemRepository) repository).findByPlateIdNull();
+        return ((PlateKitchenMenuItemJPARepository) repository).findByPlateIdNull();
     }
 
     @Override

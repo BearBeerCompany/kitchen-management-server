@@ -12,6 +12,7 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
     private String tableNumber;
     private String clientName;
     private String notes;
+    private Boolean takeAway;
 
     public String getPlateId() {
         return plateId;
@@ -67,5 +68,13 @@ public class PlateKitchenMenuItem extends MongoDocument<String> {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public Boolean getTakeAway() {
+        return takeAway;
+    }
+
+    public void setTakeAway(Boolean takeAway) {
+        this.takeAway = takeAway;
     }
 }

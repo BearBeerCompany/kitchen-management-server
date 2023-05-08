@@ -1,124 +1,86 @@
 package com.bbc.km.repository;
 
+import com.bbc.km.dto.DetailedFilterDTO;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.model.ItemStatus;
-import com.bbc.km.model.PlateKitchenMenuItem;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.repository.Aggregation;
-import org.springframework.data.mongodb.repository.MongoRepository;
+import com.bbc.km.util.JSONOperation;
+import org.bson.Document;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.*;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
+import static com.bbc.km.repository.PlateKitchenMenuItemJPARepository.MENU_ITEM_LOOKUP;
+import static com.bbc.km.repository.PlateKitchenMenuItemJPARepository.PLATE_LOOKUP;
+import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+
 @Repository
-public interface PlateKitchenMenuItemRepository extends MongoRepository<PlateKitchenMenuItem, String> {
+public class PlateKitchenMenuItemRepository {
 
-    String PLATE_LOOKUP = "{'$lookup':{" +
-            "'from': 'plate'," +
-            "'let': {'searchId': {'$toObjectId': '$plateId'}}," +
-            "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchId']}}}]," +
-            "'as': 'plate'" +
-            "}}";
+    private final static ProjectionOperation DTO_PROJECTION = project()
+            .and(ArrayOperators.ArrayElemAt.arrayOf("plate").elementAt(0)).as("plate")
+            .and(ArrayOperators.ArrayElemAt.arrayOf("menuItem").elementAt(0)).as("menuItem")
+            .andInclude("status", "notes", "clientName", "tableNumber", "orderNumber", "createdDate");
 
-    String MENU_ITEM_LOOKUP = "{'$lookup':{" +
-            "'from': 'kitchen_menu_item'," +
-            "'let': {'searchMenuItemId': {'$toObjectId': '$menuItemId'}}," +
-            "'pipeline': [{'$match':{'$expr':{'$eq': ['$_id', '$$searchMenuItemId']}}}]," +
-            "'as': 'menuItem'" +
-            "}}";
+    private final MongoTemplate mongoTemplate;
 
-    String PKMI_DTO_PROJECTION = "{'$project': " +
-            "{'status': 1," +
-            "'notes': 1," +
-            "'clientName': 1," +
-            "'tableNumber': 1," +
-            "'orderNumber': 1," +
-            "'createdDate': 1," +
-            "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
-            "}}";
+    public PlateKitchenMenuItemRepository(MongoTemplate mongoTemplate) {
+        this.mongoTemplate = mongoTemplate;
+    }
 
-    String CREATION_DATE_ASC_SORT = "{'$sort': {'createdDate': 1} }";
+    public List<PlateKitchenMenuItemDTO> findAll(List<ItemStatus> statuses,
+                                                 Integer offset,
+                                                 Integer size,
+                                                 DetailedFilterDTO query) {
 
-    @Aggregation(pipeline = {
-            "{'$match':{" +
-                    "'_id': '?0'" +
-                    "}}",
-            PLATE_LOOKUP,
-            MENU_ITEM_LOOKUP,
-            "{'$project': " +
-                    "{'status': 1," +
-                    "'notes': 1," +
-                    "'clientName': 1," +
-                    "'tableNumber': 1," +
-                    "'orderNumber': 1," +
-                    "'createdDate': 1," +
-                    "'plate': { $arrayElemAt: ['$plate', 0] }" +
-                    "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
-                    "}}"
-    })
-    PlateKitchenMenuItemDTO findPlateKitchenMenuItemDtoById(String id);
+        AggregationResults<PlateKitchenMenuItemDTO> resultsDTO = mongoTemplate.aggregate(Aggregation.newAggregation(
+                buildMongoQuery(statuses, query),
+                JSONOperation.of(PLATE_LOOKUP),
+                JSONOperation.of(MENU_ITEM_LOOKUP),
+                Aggregation.skip((long) offset),
+                Aggregation.limit(size),
+                DTO_PROJECTION
+        ), "plate_kitchen_menu_item", PlateKitchenMenuItemDTO.class);
 
-    @Aggregation(pipeline = {
-            "{'$match':{" +
-                    "'$expr':{'$in':['$status', ?0]}" +
-                    "}}",
-            PLATE_LOOKUP,
-            MENU_ITEM_LOOKUP,
-            "{'$skip': ?1 }",
-            "{'$limit': ?2 }",
-            "{'$project': " +
-                    "{'status': 1," +
-                    "'notes': 1," +
-                    "'clientName': 1," +
-                    "'tableNumber': 1," +
-                    "'orderNumber': 1," +
-                    "'createdDate': 1," +
-                    "'plate': { $arrayElemAt: ['$plate', 0] }" +
-                    "'menuItem': { $arrayElemAt: ['$menuItem', 0] }" +
-                    "}}"
-    })
-    List<PlateKitchenMenuItemDTO> findAllByStatus(List<ItemStatus> statuses, Integer offset, Integer limit);
+        return resultsDTO.getMappedResults();
+    }
 
-    @Aggregation(pipeline = {
-            "{'$match':{" +
-                    "'$expr':{'$in':['$status', ?0]}" +
-                    "}}",
-            PLATE_LOOKUP,
-            MENU_ITEM_LOOKUP,
-            "{'$count': 'total' }"
-    })
-    Long countByStatus(List<ItemStatus> statuses);
+    @SuppressWarnings("all")
+    public Integer count(List<ItemStatus> statuses,
+                         DetailedFilterDTO query) {
 
-    @Aggregation(pipeline = {
-            "{'$match':{" +
-                    "'$and':[" +
-                    "{'$or': [" +
-                    "{'status': 'TODO'}" +
-                    "{'status': 'PROGRESS'}" +
-                    "]}" +
-                    "{'plateId': '?0'}" +
-                    "]" +
-                    "}}",
-            CREATION_DATE_ASC_SORT,
-            MENU_ITEM_LOOKUP,
-            PKMI_DTO_PROJECTION
-    })
-    List<PlateKitchenMenuItemDTO> findByPlateId(String id);
+        AggregationResults<Document> result = mongoTemplate.aggregate(Aggregation.newAggregation(
+                buildMongoQuery(statuses, query),
+                JSONOperation.of(PLATE_LOOKUP),
+                JSONOperation.of(MENU_ITEM_LOOKUP),
+                Aggregation.count().as("total")
+        ), "plate_kitchen_menu_item", Document.class);
 
-    @Aggregation(pipeline = {
-            "{'$match':{" +
-                    "'$and':[" +
-                    "{'$or': [" +
-                    "{'status': 'TODO'}" +
-                    "{'status': 'PROGRESS'}" +
-                    "]}" +
-                    "{'plateId': null}" +
-                    "]" +
-                    "}}",
-            CREATION_DATE_ASC_SORT,
-            MENU_ITEM_LOOKUP,
-            PKMI_DTO_PROJECTION
-    })
-    List<PlateKitchenMenuItemDTO> findByPlateIdNull();
+        return (Integer) result.getUniqueMappedResult().get("total");
+    }
+
+    private AggregationOperation buildMongoQuery(List<ItemStatus> statuses,
+                                                 DetailedFilterDTO query) {
+        Criteria mongoQuery = Criteria.where("status").in(statuses);
+
+        if (query.getTableNumber() != null) {
+            mongoQuery.and("tableNumber").is(query.getTableNumber());
+        }
+
+        if (query.getClientName() != null) {
+            mongoQuery.and("clientName").is(query.getClientName());
+        }
+
+        if (query.getItemId() != null) {
+            mongoQuery.and("menuItemId").is(query.getItemId());
+        }
+
+        if (query.getOrderNumber() != null) {
+            mongoQuery.and("orderNumber").is(query.getOrderNumber());
+        }
+
+        return Aggregation.match(mongoQuery);
+    }
 }
