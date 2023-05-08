@@ -5,26 +5,26 @@ import java.util.List;
 
 public class PageResponse<T> implements Serializable {
     private List<T> elements;
-    private Integer page;
+    private Integer offset;
     private Integer size;
     private Integer totalPage;
-    private Long totalSize;
+    private Integer totalSize;
 
     public PageResponse() {
     }
 
-    public PageResponse(List<T> elements, Integer page, Integer size, Integer totalPage, Long totalSize) {
+    public PageResponse(List<T> elements, Integer offset, Integer size, Integer totalPage, Integer totalSize) {
         this.elements = elements;
-        this.page = page;
+        this.offset = offset;
         this.size = size;
         this.totalPage = totalPage;
         this.totalSize = totalSize;
     }
 
-    public static <T> PageResponse<T> of(List<T> data, Integer page, Integer size, Long total) {
+    public static <T> PageResponse<T> of(List<T> data, Integer offset, Integer size, Integer total) {
         return new PageResponse<>(
                 data,
-                page,
+                offset,
                 data.size(),
                 (int) Math.floor((double) total / size),
                 total);
@@ -38,12 +38,12 @@ public class PageResponse<T> implements Serializable {
         this.elements = elements;
     }
 
-    public Integer getPage() {
-        return page;
+    public Integer getOffset() {
+        return offset;
     }
 
-    public void setPage(Integer page) {
-        this.page = page;
+    public void setOffset(Integer offset) {
+        this.offset = offset;
     }
 
     public Integer getSize() {
@@ -62,11 +62,11 @@ public class PageResponse<T> implements Serializable {
         this.totalPage = totalPage;
     }
 
-    public Long getTotalSize() {
+    public Integer getTotalSize() {
         return totalSize;
     }
 
-    public void setTotalSize(Long totalSize) {
+    public void setTotalSize(Integer totalSize) {
         this.totalSize = totalSize;
     }
 }

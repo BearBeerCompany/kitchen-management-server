@@ -26,6 +26,8 @@ public class ErrorHandlerController {
 
     private ResponseEntity<ErrorResponse> _buildError(Exception exception, ErrorInfo errorInfo) {
 
+        exception.printStackTrace();
+
         HttpStatus httpCode = HttpStatus.INTERNAL_SERVER_ERROR;
         String errorMessage;
 

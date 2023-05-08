@@ -3,7 +3,6 @@ package com.bbc.km.service;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.exception.PlateNotEmptyException;
 import com.bbc.km.model.Plate;
-import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.repository.PlateRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;

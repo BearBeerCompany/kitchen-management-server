@@ -1,12 +1,12 @@
 package com.bbc.km.compound;
 
+import com.bbc.km.dto.DetailedFilterDTO;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.exception.ObjectNotFoundException;
 import com.bbc.km.model.*;
+import com.bbc.km.repository.PlateKitchenMenuItemJPARepository;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.service.CRUDService;
-import org.springframework.boot.autoconfigure.data.web.SpringDataWebProperties;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -21,15 +21,19 @@ public class PlateKitchenMenuItemCompound {
     private final CRUDService<String, PlateKitchenMenuItem> pkmiService;
     private final CRUDService<String, KitchenMenuItem> kmiService;
     private final CRUDService<String, Plate> plateService;
+    private final PlateKitchenMenuItemJPARepository plateKitchenMenuItemJPARepository;
     private final PlateKitchenMenuItemRepository plateKitchenMenuItemRepository;
 
     public PlateKitchenMenuItemCompound(
             CRUDService<String, PlateKitchenMenuItem> pkmiService,
             CRUDService<String, KitchenMenuItem> kmiService,
-            CRUDService<String, Plate> plateService, PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
+            CRUDService<String, Plate> plateService,
+            PlateKitchenMenuItemJPARepository plateKitchenMenuItemJPARepository,
+            PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
         this.pkmiService = pkmiService;
         this.kmiService = kmiService;
         this.plateService = plateService;
+        this.plateKitchenMenuItemJPARepository = plateKitchenMenuItemJPARepository;
         this.plateKitchenMenuItemRepository = plateKitchenMenuItemRepository;
     }
 
@@ -41,18 +45,21 @@ public class PlateKitchenMenuItemCompound {
 
     public List<PlateKitchenMenuItemDTO> getByIds(List<String> ids) {
         List<PlateKitchenMenuItemDTO> dtoList = pkmiService.getAll()
-            .stream().filter(doc -> ids.contains(doc.getId())).map(doc -> {
-                PlateKitchenMenuItemDTO dto = doc2Dto(doc);
-                return dto;
-            }).collect(Collectors.toList());
+                .stream().filter(doc -> ids.contains(doc.getId())).map(doc -> {
+                    PlateKitchenMenuItemDTO dto = doc2Dto(doc);
+                    return dto;
+                }).collect(Collectors.toList());
 
         return dtoList;
     }
 
-    public PageResponse<PlateKitchenMenuItemDTO> getAll(List<ItemStatus> statuses, Integer page, Integer size) {
+    public PageResponse<PlateKitchenMenuItemDTO> getAll(List<ItemStatus> statuses,
+                                                        Integer offset,
+                                                        Integer size,
+                                                        DetailedFilterDTO query) {
         statuses = statuses != null ? statuses : List.of(ItemStatus.values());
-        List<PlateKitchenMenuItemDTO> elements = plateKitchenMenuItemRepository.findAllByStatus(statuses, page * size, size);
-        return PageResponse.of(elements, page, size, plateKitchenMenuItemRepository.countByStatus(statuses));
+        List<PlateKitchenMenuItemDTO> elements = plateKitchenMenuItemRepository.findAll(statuses, offset, size, query);
+        return PageResponse.of(elements, offset, size, plateKitchenMenuItemRepository.count(statuses, query));
     }
 
     public PlateKitchenMenuItemDTO create(PlateKitchenMenuItemDTO dto) {
@@ -132,7 +139,7 @@ public class PlateKitchenMenuItemCompound {
         dto.setTableNumber(doc.getTableNumber());
         dto.setNotes(doc.getNotes());
         dto.setCreatedDate(doc.getCreatedDate());
-
+        dto.setTakeAway(doc.getTakeAway());
         return dto;
     }
 
@@ -151,7 +158,7 @@ public class PlateKitchenMenuItemCompound {
         if (dto.getCreatedDate() != null) {
             doc.setCreatedDate(dto.getCreatedDate());
         }
-
+        doc.setTakeAway(dto.getTakeAway());
         return doc;
     }
 

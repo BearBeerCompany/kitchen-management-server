@@ -18,6 +18,7 @@ public class PlateKitchenMenuItemDTO implements Serializable {
     private String clientName;
     private String notes;
     private LocalDateTime createdDate;
+    private Boolean takeAway;
 
     public String getId() {
         return id;
@@ -89,5 +90,13 @@ public class PlateKitchenMenuItemDTO implements Serializable {
 
     public void setCreatedDate(LocalDateTime createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public Boolean getTakeAway() {
+        return takeAway;
+    }
+
+    public void setTakeAway(Boolean takeAway) {
+        this.takeAway = takeAway;
     }
 }
