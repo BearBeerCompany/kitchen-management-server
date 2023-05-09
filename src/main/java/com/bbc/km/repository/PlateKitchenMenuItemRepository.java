@@ -58,11 +58,12 @@ public class PlateKitchenMenuItemRepository {
                 Aggregation.count().as("total")
         ), "plate_kitchen_menu_item", Document.class);
 
-        return (Integer) result.getUniqueMappedResult().get("total");
+        return result.getUniqueMappedResult() != null ? (Integer) result.getUniqueMappedResult().get("total") : 0;
     }
 
     private AggregationOperation buildMongoQuery(List<ItemStatus> statuses,
                                                  DetailedFilterDTO query) {
+
         Criteria mongoQuery = Criteria.where("status").in(statuses);
 
         if (query.getTableNumber() != null) {
@@ -81,6 +82,6 @@ public class PlateKitchenMenuItemRepository {
             mongoQuery.and("orderNumber").is(query.getOrderNumber());
         }
 
-        return Aggregation.match(mongoQuery);
+        return Aggregation.match(new Criteria().andOperator(mongoQuery));
     }
 }
