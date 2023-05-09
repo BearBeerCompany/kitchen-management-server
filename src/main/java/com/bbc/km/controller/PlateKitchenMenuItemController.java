@@ -65,7 +65,6 @@ public class PlateKitchenMenuItemController implements CompoundController<String
                                                                         @RequestParam(name = "size", defaultValue = "20", required = false) Integer size,
                                                                         @RequestParam(name = "tableNumber", required = false) String tableNumber,
                                                                         @RequestParam(name = "clientName", required = false) String clientName,
-                                                                        @RequestParam(name = "categoryId", required = false) String categoryId,
                                                                         @RequestParam(name = "itemId", required = false) String itemId,
                                                                         @RequestParam(name = "orderNumber", required = false) Integer orderNumber) {
         return ResponseEntity.ok(
@@ -73,7 +72,7 @@ public class PlateKitchenMenuItemController implements CompoundController<String
                         statuses,
                         offset,
                         size,
-                        new DetailedFilterDTO(tableNumber, clientName, categoryId, itemId, orderNumber)
+                        new DetailedFilterDTO(tableNumber, clientName, itemId, orderNumber)
                 )
         );
     }

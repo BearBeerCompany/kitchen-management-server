@@ -7,7 +7,7 @@ public class DetailedFilterDTO {
     private final String itemId;
     private final Integer orderNumber;
 
-    public DetailedFilterDTO(String tableNumber, String clientName, String categoryId, String itemId, Integer orderNumber) {
+    public DetailedFilterDTO(String tableNumber, String clientName, String itemId, Integer orderNumber) {
         this.tableNumber = tableNumber;
         this.clientName = clientName;
         this.itemId = itemId;
