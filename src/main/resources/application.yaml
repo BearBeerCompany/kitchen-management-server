@@ -1,0 +1,25 @@
+spring:
+  output:
+    ansi:
+      enabled: always
+  banner:
+    location: ./banner.txt
+  data:
+    postgres:
+      url: jdbc:pgsql://localhost:5432/bear
+      user: root
+      password: example
+    mongodb:
+      database: kitchenmgmt
+      uri: mongodb://root:example@mongo:27017/
+application:
+  version: 2.0.0
+  title: Kitchen Management Server
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
