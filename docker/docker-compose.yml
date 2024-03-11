@@ -1,7 +1,6 @@
 version: '3.1'
 
 services:
-
   mongo:
     image: mongo
     restart: no
@@ -12,3 +11,15 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: example
     volumes:
       - $HOME/mongodb/database:/data/db
+  postgres:
+    image: postgres:11.9
+    restart: no
+    shm_size: 128mb
+    ports:
+      - "5432:5432"
+    volumes:
+      - $HOME/postgresql:/var/lib/postgresql
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: example
+      POSTGRES_DB: bear

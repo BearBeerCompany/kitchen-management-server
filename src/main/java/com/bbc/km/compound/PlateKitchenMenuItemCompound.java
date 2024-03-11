@@ -7,6 +7,7 @@ import com.bbc.km.model.*;
 import com.bbc.km.repository.PlateKitchenMenuItemJPARepository;
 import com.bbc.km.repository.PlateKitchenMenuItemRepository;
 import com.bbc.km.service.CRUDService;
+import com.bbc.km.service.PlateService;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -20,14 +21,14 @@ public class PlateKitchenMenuItemCompound {
 
     private final CRUDService<String, PlateKitchenMenuItem> pkmiService;
     private final CRUDService<String, KitchenMenuItem> kmiService;
-    private final CRUDService<String, Plate> plateService;
+    private final PlateService plateService;
     private final PlateKitchenMenuItemJPARepository plateKitchenMenuItemJPARepository;
     private final PlateKitchenMenuItemRepository plateKitchenMenuItemRepository;
 
     public PlateKitchenMenuItemCompound(
             CRUDService<String, PlateKitchenMenuItem> pkmiService,
             CRUDService<String, KitchenMenuItem> kmiService,
-            CRUDService<String, Plate> plateService,
+            PlateService plateService,
             PlateKitchenMenuItemJPARepository plateKitchenMenuItemJPARepository,
             PlateKitchenMenuItemRepository plateKitchenMenuItemRepository) {
         this.pkmiService = pkmiService;
@@ -82,6 +83,7 @@ public class PlateKitchenMenuItemCompound {
     public PlateKitchenMenuItemDTO update(PlateKitchenMenuItemDTO dto) {
         PlateKitchenMenuItem doc = dto2Doc(dto);
         PlateKitchenMenuItem newDoc = pkmiService.update(doc);
+        plateService.incrementCounterById(dto.getPlate().getId());
         return doc2Dto(newDoc);
     }
 
