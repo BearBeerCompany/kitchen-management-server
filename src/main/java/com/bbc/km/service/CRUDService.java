@@ -16,6 +16,11 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
     }
 
     public DTO getById(ID id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null!");
+        }
+
         Optional<DTO> optionalItem = repository.findById(id);
 
         if (optionalItem.isPresent()) {
@@ -32,10 +37,10 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
     public DTO create(DTO dto) {
         String errors = validateOnCreate(dto);
 
-        if (errors.length() == 0) {
+        if (errors.isEmpty()) {
             return repository.insert(dto);
         } else {
-            throw new RuntimeException(errors);
+            throw new IllegalArgumentException(errors);
         }
     }
 
@@ -43,7 +48,8 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
 
         String errors = validateOnUpdate(dto);
 
-        if (errors.length() == 0) {
+        if (errors.isEmpty()) {
+            //TODO: performance improvement, remove the first query for check if document exists
             Optional<DTO> optionalItem = repository.findById(dto.getId());
 
             if (optionalItem.isPresent()) {
@@ -52,11 +58,16 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
                 throw new ObjectNotFoundException(dto.getId());
             }
         } else {
-            throw new RuntimeException(errors);
+            throw new IllegalArgumentException(errors);
         }
     }
 
     public DTO delete(ID id) {
+
+        if (id == null) {
+            throw new IllegalArgumentException("Id cannot be null!");
+        }
+
         Optional<DTO> optionalItem = repository.findById(id);
 
         if (optionalItem.isPresent()) {

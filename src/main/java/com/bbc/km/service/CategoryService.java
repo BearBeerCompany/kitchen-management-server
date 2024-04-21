@@ -22,6 +22,10 @@ public class CategoryService extends CRUDService<String, Category> {
     @Override
     public Category delete(String id) {
 
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("Id cannot be null!");
+        }
+
         List<KitchenMenuItem> categoryItems = kitchenMenuItemRepository.findByCategoryId(id);
         kitchenMenuItemRepository.deleteAll(categoryItems);
 
@@ -31,6 +35,10 @@ public class CategoryService extends CRUDService<String, Category> {
     @Override
     protected String validateOnCreate(Category dto) {
         StringBuilder builder = new StringBuilder();
+
+        if (dto == null) {
+            return "DTO cannot be null!";
+        }
 
         if (dto.getName() == null) {
             builder.append("Name cannot be null!");
@@ -42,6 +50,10 @@ public class CategoryService extends CRUDService<String, Category> {
     @Override
     protected String validateOnUpdate(Category dto) {
         StringBuilder builder = new StringBuilder();
+
+        if (dto == null) {
+            return "DTO cannot be null!";
+        }
 
         if (dto.getId() == null) {
             builder.append("Id cannot be null!");
