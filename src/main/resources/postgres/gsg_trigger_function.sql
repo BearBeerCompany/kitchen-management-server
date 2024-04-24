@@ -23,8 +23,8 @@ BEGIN
 	and ra.pos_tipologia in (1,2,3,9,12);
 
 	if isValidMenuItem > 0 then
-		select json_build_object('id', o.id, 'tableNumber', o."numeroTavolo", 'date', o."data", 'time', o.ora, 'clientName', o.cliente, 'orderNotes', o.note,
-			'quantity', r.quantita, 'menuItemName', r.descrizione, 'menuItemNotes', ra.note)
+		select json_build_object('id', ra.id, 'orderNumber', o.progressivo, 'tableNumber', o."numeroTavolo", 'date', o."data", 'time', o.ora, 'clientName', o.cliente, 'orderNotes', o.note,
+			'quantity', r.quantita, 'menuItemName', r.descrizione, 'menuItemNotes', ra.note, 'menuItemExtIndex', ra.posizione)
 		into json_result
 	  	from righe_articoli ra
 	  	inner join righe r on r.id = ra.id_riga
