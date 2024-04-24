@@ -8,6 +8,10 @@ public class KitchenMenuItem extends MongoDocument<String> {
     private String name;
     private String description;
     private String categoryId;
+    /**
+     * Represents position in external (GSG) db
+     */
+    private Integer externalIndex;
 
     public String getName() {
         return name;
@@ -31,5 +35,13 @@ public class KitchenMenuItem extends MongoDocument<String> {
 
     public void setCategoryId(String categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Integer getExternalIndex() {
+        return externalIndex;
+    }
+
+    public void setExternalIndex(Integer externalIndex) {
+        this.externalIndex = externalIndex;
     }
 }

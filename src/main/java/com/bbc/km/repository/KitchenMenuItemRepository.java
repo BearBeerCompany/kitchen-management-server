@@ -10,4 +10,6 @@ import java.util.List;
 public interface KitchenMenuItemRepository extends MongoRepository<KitchenMenuItem, String> {
 
     List<KitchenMenuItem> findByCategoryId(String categoryId);
+
+    List<KitchenMenuItem> findByExternalIndex(Integer externalIndex);
 }

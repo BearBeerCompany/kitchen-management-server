@@ -1,5 +1,15 @@
 package com.bbc.km.configuration;
 
+import com.bbc.km.compound.PlateKitchenMenuItemCompound;
+import com.bbc.km.dto.PlateKitchenMenuItemDTO;
+import com.bbc.km.dto.notify.PlateOrdersNotifyDTO;
+import com.bbc.km.dto.notify.PlateOrdersNotifyItem;
+import com.bbc.km.model.ItemStatus;
+import com.bbc.km.model.KitchenMenuItem;
+import com.bbc.km.model.PlateKitchenMenuItem;
+import com.bbc.km.service.KitchenMenuItemService;
+import com.bbc.km.websocket.PKMINotification;
+import com.bbc.km.websocket.PKMINotificationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -9,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
@@ -22,12 +33,21 @@ import static com.bbc.km.configuration.PostgresConfig.DATASOURCE;
 @Component
 public class ServletContextListenerImpl implements ServletContextListener {
 
+    private static final String NOTIFICATION_TOPIC = "/topic/pkmi";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ServletContextListenerImpl.class);
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final PGConnection pgConnection;
 
     private boolean isChannelOpen = false;
+    
+    @Autowired
+    private PlateKitchenMenuItemCompound pkmiCompound;
+    @Autowired
+    private KitchenMenuItemService kmiService;
+    @Autowired
+    private SimpMessagingTemplate simpMessagingTemplate;
 
     public ServletContextListenerImpl(@Autowired @Qualifier(DATASOURCE) DataSource dataSource) throws SQLException {
         pgConnection = (PGConnection) dataSource.getConnection();
@@ -40,10 +60,35 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 try {
                     json = OBJECT_MAPPER.readTree(payload);
                     System.out.println(json);
-                    //TODO: map the json node to a PKMI notification event and sent through ws with simpMessagingTemplate
+
+                    PlateOrdersNotifyDTO notifyDTO = OBJECT_MAPPER.treeToValue(json, PlateOrdersNotifyDTO.class);
+                    System.out.println(notifyDTO);
+
+                    PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
+                    // todo ciclare sulla quantity
+                    PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+
+                    PKMINotification notification = new PKMINotification();
+                    notification.setType(PKMINotificationType.PKMI_ADD);
+                    notification.setPlateKitchenMenuItem(resultDto);
+                    simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
                 } catch (JsonProcessingException e) {
                     LOGGER.error("Failed json processing for ingested payload!", e);
                 }
+            }
+
+            private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(PlateOrdersNotifyItem notifyItem) {
+                PlateKitchenMenuItemDTO result = new PlateKitchenMenuItemDTO();
+                KitchenMenuItem kmi = kmiService.getItemByExternalIndex(notifyItem.getMenuItemExtIndex());
+
+                result.setMenuItem(kmi);
+                result.setStatus(ItemStatus.TODO);
+                result.setOrderNumber(notifyItem.getOrderNumber());
+                result.setTableNumber(notifyItem.getTableNumber());
+                result.setClientName(notifyItem.getClientName());
+                result.setNotes(notifyItem.getOrderNotes()); // todo capire quali usare, se globali o specifiche
+                // todo createdDate e takeAway, da capire meglio: sembra non essere tracciato a db pg GSG
+                return result;
             }
         });
     }
@@ -73,4 +118,6 @@ public class ServletContextListenerImpl implements ServletContextListener {
             }
 
     }
+
+
 }
