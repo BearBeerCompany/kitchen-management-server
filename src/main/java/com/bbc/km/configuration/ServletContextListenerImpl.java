@@ -64,13 +64,14 @@ public class ServletContextListenerImpl implements ServletContextListener {
                     System.out.println(notifyDTO);
 
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
-                    // todo ciclare sulla quantity
-                    PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+                    for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
+                        PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
 
-                    PKMINotification notification = new PKMINotification();
-                    notification.setType(PKMINotificationType.PKMI_ADD);
-                    notification.setPlateKitchenMenuItem(resultDto);
-                    simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                        PKMINotification notification = new PKMINotification();
+                        notification.setType(PKMINotificationType.PKMI_ADD);
+                        notification.setPlateKitchenMenuItem(resultDto);
+                        simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                    }
                 } catch (JsonProcessingException e) {
                     LOGGER.error("Failed json processing for ingested payload!", e);
                 }
