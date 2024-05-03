@@ -3,6 +3,7 @@ package com.bbc.km.service;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.repository.KitchenMenuItemRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import java.util.List;
 import java.util.Objects;
@@ -15,8 +16,8 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
     }
 
     public List<KitchenMenuItem> getItemsByCategoryId(String categoryId) {
-        Objects.requireNonNull(categoryId, "Category Id cannot be null!");
-
+        Assert.notNull(categoryId, "Category Id cannot be null!");
+        //TODO: validate also id if exists real category, using category cache
         return ((KitchenMenuItemRepository) repository).findByCategoryId(categoryId);
     }
 
@@ -35,6 +36,10 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
     protected String validateOnCreate(KitchenMenuItem dto) {
         StringBuilder builder = new StringBuilder();
 
+        if (dto == null) {
+            return "DTO cannot be null!";
+        }
+
         if (dto.getName() == null) {
             builder.append("Name cannot be null!");
         }
@@ -43,12 +48,18 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
             builder.append("Category Id cannot be null!");
         }
 
+        //TODO: validate also id if exists real category, using category cache
+
         return builder.toString();
     }
 
     @Override
     protected String validateOnUpdate(KitchenMenuItem dto) {
         StringBuilder builder = new StringBuilder();
+
+        if (dto == null) {
+            return "DTO cannot be null!";
+        }
 
         if (dto.getId() == null) {
             builder.append("Id cannot be null!");
@@ -61,6 +72,8 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
         if (dto.getCategoryId() == null) {
             builder.append("Category Id cannot be null!");
         }
+
+        //TODO: validate also id if exists real category, using category cache
 
         return builder.toString();
     }
