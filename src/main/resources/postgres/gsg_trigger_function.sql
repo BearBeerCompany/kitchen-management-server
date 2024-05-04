@@ -16,7 +16,7 @@ declare
 BEGIN
 	RAISE NOTICE 'Nuova riga inserita nella tabella righe_articoli con id: %', NEW.id;
 
-	-- verifico se articolo inserito appartiene a
+	-- verifico se articolo inserito appartiene a una delle categorie gestibili dalle piastre
 	select count(ra.id) into isValidMenuItem
     from righe_articoli ra
     inner join tipologie t on ra.desc_tipologia = t.descrizione
@@ -37,7 +37,7 @@ BEGIN
         inner join articoli a on r.descrizionebreve = a.descrizionebreve
         inner join tipologie t on a.id_tipologia = t.id
         inner join ordini o on o.id = r.id_ordine
-        where ra.id>> = new.id;
+        where ra.id = new.id;
 
 	  	RAISE NOTICE 'Risultato JSON %', json_result;
 
