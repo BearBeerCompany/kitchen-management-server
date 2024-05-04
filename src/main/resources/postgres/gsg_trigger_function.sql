@@ -1,15 +1,18 @@
+-- trigger function
+
 -- DROP FUNCTION public.menu_items_notify();
 
+-- N.B.: adeguare la dichiarazione delle variabili per gli id delle categorie dei panini da considerare, sulla base di quanto definito nella tabella tipologie
 CREATE OR REPLACE FUNCTION public.menu_items_notify()
  RETURNS trigger
  LANGUAGE plpgsql
 AS $function$
 declare
-	panini_type_pos INTEGER := 1;
-	piadine_type_pos INTEGER := 2;
-	toast_type_pos INTEGER := 3;
-	piatti_unici_type_pos INTEGER := 9;
-	panini_spec_type_pos INTEGER := 12;
+	panini_cat_id INTEGER := 1;
+    piadine_cat_id INTEGER := 2;
+    toast_cat_id INTEGER := 3;
+    piatti_unici_cat_id INTEGER := 6;
+    panini_spec_cat_id INTEGER := 8;
 	isValidMenuItem INTEGER = 0;
 	json_result json;
 	v_txt text;
@@ -20,7 +23,7 @@ BEGIN
 	select count(ra.id) into isValidMenuItem
     from righe_articoli ra
     inner join tipologie t on ra.desc_tipologia = t.descrizione
-    where ra.id = new.id and t.id in (1,2,3,6,8);
+    where ra.id = new.id and t.id in (panini_cat_id, piadine_cat_id, toast_cat_id, piatti_unici_cat_id, panini_spec_cat_id);
 
 	if isValidMenuItem > 0 then
 		select json_build_object(
@@ -53,3 +56,11 @@ BEGIN
 END;
 $function$
 ;
+
+-- trigger
+--DROP TRIGGER righe_articoli_trigger ON public.righe_articoli;
+
+CREATE TRIGGER righe_articoli_trigger
+after INSERT OR UPDATE ON righe_articoli
+FOR EACH ROW
+EXECUTE PROCEDURE menu_items_notify();
