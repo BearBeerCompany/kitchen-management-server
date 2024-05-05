@@ -21,11 +21,11 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
         return ((KitchenMenuItemRepository) repository).findByCategoryId(categoryId);
     }
 
-    public KitchenMenuItem getItemByExternalIndex(Integer externalIndex) {
-        Objects.requireNonNull(externalIndex, "External Index cannot be null!");
+    public KitchenMenuItem getItemByExternalId(Integer externalId) {
+        Objects.requireNonNull(externalId, "External id cannot be null!");
         KitchenMenuItem item = null;
 
-        List<KitchenMenuItem> list = ((KitchenMenuItemRepository) repository).findByExternalIndex(externalIndex);
+        List<KitchenMenuItem> list = ((KitchenMenuItemRepository) repository).findByExternalId(externalId);
         if (!list.isEmpty()) {
             item = list.get(0);
         }

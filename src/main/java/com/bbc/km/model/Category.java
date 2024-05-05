@@ -8,6 +8,11 @@ public class Category extends MongoDocument<String> {
     private String name;
     private String description;
     private String color;
+    /**
+     * Represents id in external (GSG) db
+     */
+    private Integer externalId;
+    private Boolean visible;
 
     public String getName() {
         return name;
@@ -31,5 +36,21 @@ public class Category extends MongoDocument<String> {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public Integer getExternalId() {
+        return externalId;
+    }
+
+    public void setExternalId(Integer externalId) {
+        this.externalId = externalId;
+    }
+
+    public Boolean getVisible() {
+        return visible;
+    }
+
+    public void setVisible(Boolean visible) {
+        this.visible = visible;
     }
 }

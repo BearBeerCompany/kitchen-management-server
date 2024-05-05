@@ -6,7 +6,6 @@ import com.bbc.km.dto.notify.PlateOrdersNotifyDTO;
 import com.bbc.km.dto.notify.PlateOrdersNotifyItem;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
-import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.service.KitchenMenuItemService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
@@ -65,13 +64,14 @@ public class ServletContextListenerImpl implements ServletContextListener {
                     System.out.println(notifyDTO);
 
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
-                    // todo ciclare sulla quantity
-                    PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+                    for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
+                        PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
 
-                    PKMINotification notification = new PKMINotification();
-                    notification.setType(PKMINotificationType.PKMI_ADD);
-                    notification.setPlateKitchenMenuItem(resultDto);
-                    simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                        PKMINotification notification = new PKMINotification();
+                        notification.setType(PKMINotificationType.PKMI_ADD);
+                        notification.setPlateKitchenMenuItem(resultDto);
+                        simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                    }
                 } catch (JsonProcessingException e) {
                     LOGGER.error("Failed json processing for ingested payload!", e);
                 }
@@ -79,15 +79,21 @@ public class ServletContextListenerImpl implements ServletContextListener {
 
             private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(PlateOrdersNotifyItem notifyItem) {
                 PlateKitchenMenuItemDTO result = new PlateKitchenMenuItemDTO();
-                KitchenMenuItem kmi = kmiService.getItemByExternalIndex(notifyItem.getMenuItemExtIndex());
+                KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyItem.getMenuItemId());
 
+                // todo capire meglio come gestire category e menuItem
+//                KitchenMenuItem kmi = new KitchenMenuItem();
+//                kmi.setId(String.valueOf(notifyItem.getMenuItemId()));
+//                kmi.setName(notifyItem.getMenuItemName());
+//                kmi.setCategoryId(String.valueOf(notifyItem.getCategoryId()));
                 result.setMenuItem(kmi);
                 result.setStatus(ItemStatus.TODO);
                 result.setOrderNumber(notifyItem.getOrderNumber());
                 result.setTableNumber(notifyItem.getTableNumber());
                 result.setClientName(notifyItem.getClientName());
+                result.setTakeAway(notifyItem.getTakeAway());
                 result.setNotes(notifyItem.getOrderNotes()); // todo capire quali usare, se globali o specifiche
-                // todo createdDate e takeAway, da capire meglio: sembra non essere tracciato a db pg GSG
+                // todo createdDate
                 return result;
             }
         });

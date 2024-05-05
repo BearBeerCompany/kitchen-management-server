@@ -12,9 +12,12 @@ public class PlateOrdersNotifyItem implements Serializable {
     private String clientName;
     private String orderNotes;
     private Integer quantity;
+    private Boolean takeAway;
+    private Integer menuItemId;
     private String menuItemName;
     private String menuItemNotes;
-    private Integer menuItemExtIndex;
+    private Integer categoryId;
+    private String categoryName;
 
     public String getId() {
         return id;
@@ -96,11 +99,35 @@ public class PlateOrdersNotifyItem implements Serializable {
         this.menuItemNotes = menuItemNotes;
     }
 
-    public Integer getMenuItemExtIndex() {
-        return menuItemExtIndex;
+    public Boolean getTakeAway() {
+        return takeAway;
     }
 
-    public void setMenuItemExtIndex(Integer menuItemExtIndex) {
-        this.menuItemExtIndex = menuItemExtIndex;
+    public void setTakeAway(Boolean takeAway) {
+        this.takeAway = takeAway;
+    }
+
+    public Integer getMenuItemId() {
+        return menuItemId;
+    }
+
+    public void setMenuItemId(Integer menuItemId) {
+        this.menuItemId = menuItemId;
+    }
+
+    public Integer getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(Integer categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
     }
 }

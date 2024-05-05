@@ -11,5 +11,5 @@ public interface KitchenMenuItemRepository extends MongoRepository<KitchenMenuIt
 
     List<KitchenMenuItem> findByCategoryId(String categoryId);
 
-    List<KitchenMenuItem> findByExternalIndex(Integer externalIndex);
+    List<KitchenMenuItem> findByExternalId(Integer externalId);
 }
