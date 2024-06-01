@@ -63,10 +63,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 final JsonNode json;
                 try {
                     json = OBJECT_MAPPER.readTree(payload);
-                    System.out.println(json);
-
                     PlateOrdersNotifyDTO notifyDTO = OBJECT_MAPPER.treeToValue(json, PlateOrdersNotifyDTO.class);
-                    System.out.println(notifyDTO);
 
                     // update OrdersAck table in PG
                     Optional<OrderAck> orderAckOp = orderAckService.getOrderById(notifyDTO.getItem().getId());

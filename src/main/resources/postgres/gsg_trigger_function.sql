@@ -56,10 +56,10 @@ BEGIN
         inner join ordini o on o.id = r.id_ordine
         where ra.id = new.id;
 
-	  	RAISE NOTICE 'Risultato JSON %', json_result;
+	  	-- RAISE NOTICE 'Risultato JSON %', json_result;
 
 	   	v_txt := format('{"operation": "%s","item": %s }', TG_OP, json_result);
-	  	RAISE NOTICE 'Payload notifica %', v_txt;
+	  	-- RAISE NOTICE 'Payload notifica %', v_txt;
 
 	    -- Recupero dei singoli campi dal JSON
         id := (json_result->>'id')::INT;
@@ -76,21 +76,6 @@ BEGIN
         menu_item_notes := json_result->>'menuItemNotes';
         category_id := (json_result->>'categoryId')::INT;
         category_name := json_result->>'categoryName';
-        -- Stampa dei risultati
-        RAISE NOTICE 'id: %', id;
-        RAISE NOTICE 'order_number: %', order_number;
-        RAISE NOTICE 'table_number: %', table_number;
-        RAISE NOTICE 'date: %', insert_date;
-        RAISE NOTICE 'time: %', insert_time;
-        RAISE NOTICE 'client_name: %', client_name;
-        RAISE NOTICE 'take_away: %', take_away;
-        RAISE NOTICE 'order_notes: %', order_notes;
-        RAISE NOTICE 'quantity: %', quantity;
-        RAISE NOTICE 'menu_item_id: %', menu_item_id;
-        RAISE NOTICE 'menu_item_name: %', menu_item_name;
-        RAISE NOTICE 'menu_item_notes: %', menu_item_notes;
-        RAISE NOTICE 'category_id: %', category_id;
-        RAISE NOTICE 'category_name: %', category_name;
 
 	  	-- insert body notifica in tabella orders_ack
         INSERT INTO orders_ack (
