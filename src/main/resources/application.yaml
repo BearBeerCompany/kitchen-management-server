@@ -9,6 +9,16 @@ spring:
       url: jdbc:pgsql://localhost:5432/bear
       user: root
       password: example
+    postgres-ack:
+      jdbc-url: jdbc:postgresql://localhost:5432/bear
+      username: root
+      password: example
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 10
+      hibernate:
+        ddl-auto: none
+      show-sql: true
     mongodb:
       database: kitchenmgmt
       uri: mongodb://root:example@mongo:27017/

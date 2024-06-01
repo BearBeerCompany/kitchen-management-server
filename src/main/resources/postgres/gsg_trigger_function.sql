@@ -16,6 +16,20 @@ declare
 	isValidMenuItem INTEGER = 0;
 	json_result json;
 	v_txt text;
+	id INT;
+    order_number INT;
+    table_number VARCHAR;
+    insert_date VARCHAR;
+    insert_time VARCHAR;
+    client_name VARCHAR;
+    take_away BOOLEAN;
+    order_notes VARCHAR;
+    quantity INT;
+    menu_item_id INT;
+    menu_item_name VARCHAR;
+    menu_item_notes VARCHAR;
+    category_id INT;
+    category_name VARCHAR;
 BEGIN
 	RAISE NOTICE 'Nuova riga inserita nella tabella righe_articoli con id: %', NEW.id;
 
@@ -47,6 +61,47 @@ BEGIN
 	   	v_txt := format('{"operation": "%s","item": %s }', TG_OP, json_result);
 	  	RAISE NOTICE 'Payload notifica %', v_txt;
 
+	    -- Recupero dei singoli campi dal JSON
+        id := (json_result->>'id')::INT;
+        order_number := (json_result->>'orderNumber')::INT;
+        table_number := json_result->>'tableNumber';
+        insert_date := (json_result->>'date');
+        insert_time := (json_result->>'time');
+        client_name := json_result->>'clientName';
+        take_away := (json_result->>'takeAway')::BOOLEAN;
+        order_notes := json_result->>'orderNotes';
+        quantity := (json_result->>'quantity')::INT;
+        menu_item_id := (json_result->>'menuItemId')::INT;
+        menu_item_name := json_result->>'menuItemName';
+        menu_item_notes := json_result->>'menuItemNotes';
+        category_id := (json_result->>'categoryId')::INT;
+        category_name := json_result->>'categoryName';
+        -- Stampa dei risultati
+        RAISE NOTICE 'id: %', id;
+        RAISE NOTICE 'order_number: %', order_number;
+        RAISE NOTICE 'table_number: %', table_number;
+        RAISE NOTICE 'date: %', insert_date;
+        RAISE NOTICE 'time: %', insert_time;
+        RAISE NOTICE 'client_name: %', client_name;
+        RAISE NOTICE 'take_away: %', take_away;
+        RAISE NOTICE 'order_notes: %', order_notes;
+        RAISE NOTICE 'quantity: %', quantity;
+        RAISE NOTICE 'menu_item_id: %', menu_item_id;
+        RAISE NOTICE 'menu_item_name: %', menu_item_name;
+        RAISE NOTICE 'menu_item_notes: %', menu_item_notes;
+        RAISE NOTICE 'category_id: %', category_id;
+        RAISE NOTICE 'category_name: %', category_name;
+
+	  	-- insert body notifica in tabella orders_ack
+        INSERT INTO orders_ack (
+            id, order_number, table_number, insert_date, insert_time, client_name, take_away,
+            order_notes, quantity, menu_item_id, menu_item_name, menu_item_notes, category_id, category_name, ack
+        ) VALUES (
+            id, order_number, table_number, insert_date, insert_time, client_name, take_away,
+            order_notes, quantity, menu_item_id, menu_item_name, menu_item_notes, category_id, category_name, false
+        );
+
+        -- invio notifica
 	    EXECUTE FORMAT('NOTIFY plate_orders, ''%s''', v_txt);
 	else
 		RAISE NOTICE 'Categoria riga articolo non valida: %', NEW.pos_tipologia;
@@ -64,3 +119,23 @@ CREATE TRIGGER righe_articoli_trigger
 after INSERT OR UPDATE ON righe_articoli
 FOR EACH ROW
 EXECUTE PROCEDURE menu_items_notify();
+
+-- tabella da usare per verifica ACK notifiche
+-- drop table orders_ack
+CREATE TABLE orders_ack (
+    id int PRIMARY KEY,
+    order_number int not null,
+    table_number VARCHAR(255),
+    insert_date VARCHAR(255) not null,
+    insert_time VARCHAR(255) not null,
+    client_name varchar(255),
+    take_away bool,
+    order_notes varchar(255),
+    quantity int not null,
+    menu_item_id int not null,
+    menu_item_name varchar(255),
+    menu_item_notes varchar(255),
+    category_id int not null,
+    category_name varchar(255),
+    ack bool
+);
