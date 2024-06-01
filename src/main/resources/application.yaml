@@ -9,12 +9,29 @@ spring:
       url: jdbc:pgsql://localhost:5432/bear
       user: root
       password: example
+    postgres-ack:
+      jdbc-url: jdbc:postgresql://localhost:5432/bear
+      username: root
+      password: example
+      driver-class-name: org.postgresql.Driver
+      hikari:
+        maximum-pool-size: 10
+      hibernate:
+        ddl-auto: none
+      show-sql: true
     mongodb:
       database: kitchenmgmt
       uri: mongodb://root:example@mongo:27017/
+    task:
+      scheduling:
+        enabled: true
 application:
   version: 2.0.0
   title: Kitchen Management Server
+  jobs:
+    order-ack:
+      fixedDelay: 60000
+      interval: 120000
 logging:
   level:
     org:

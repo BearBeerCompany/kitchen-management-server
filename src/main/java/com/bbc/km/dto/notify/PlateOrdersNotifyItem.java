@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 public class PlateOrdersNotifyItem implements Serializable {
 
-    private String id;
+    private Integer id;
     private Integer orderNumber;
     private String tableNumber;
     private String date;
@@ -19,11 +19,11 @@ public class PlateOrdersNotifyItem implements Serializable {
     private Integer categoryId;
     private String categoryName;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

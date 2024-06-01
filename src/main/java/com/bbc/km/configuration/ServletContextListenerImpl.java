@@ -6,7 +6,9 @@ import com.bbc.km.dto.notify.PlateOrdersNotifyDTO;
 import com.bbc.km.dto.notify.PlateOrdersNotifyItem;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
+import com.bbc.km.jpa.entity.OrderAck;
 import com.bbc.km.service.KitchenMenuItemService;
+import com.bbc.km.jpa.service.OrderAckService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -26,6 +28,7 @@ import javax.servlet.ServletContextListener;
 import javax.sql.DataSource;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Optional;
 
 import static com.bbc.km.configuration.PostgresConfig.DATASOURCE;
 
@@ -46,6 +49,8 @@ public class ServletContextListenerImpl implements ServletContextListener {
     @Autowired
     private KitchenMenuItemService kmiService;
     @Autowired
+    private OrderAckService orderAckService;
+    @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
     public ServletContextListenerImpl(@Autowired @Qualifier(DATASOURCE) DataSource dataSource) throws SQLException {
@@ -58,10 +63,15 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 final JsonNode json;
                 try {
                     json = OBJECT_MAPPER.readTree(payload);
-                    System.out.println(json);
-
                     PlateOrdersNotifyDTO notifyDTO = OBJECT_MAPPER.treeToValue(json, PlateOrdersNotifyDTO.class);
-                    System.out.println(notifyDTO);
+
+                    // update OrdersAck table in PG
+                    Optional<OrderAck> orderAckOp = orderAckService.getOrderById(notifyDTO.getItem().getId());
+                    if (orderAckOp.isPresent()) {
+                        OrderAck orderAck = orderAckOp.get();
+                        orderAck.setAck(true);
+                        orderAckService.saveOrder(orderAck);
+                    }
 
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
