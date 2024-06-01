@@ -22,9 +22,16 @@ spring:
     mongodb:
       database: kitchenmgmt
       uri: mongodb://root:example@mongo:27017/
+    task:
+      scheduling:
+        enabled: true
 application:
   version: 2.0.0
   title: Kitchen Management Server
+  jobs:
+    order-ack:
+      fixedDelay: 60000
+      interval: 120000
 logging:
   level:
     org:

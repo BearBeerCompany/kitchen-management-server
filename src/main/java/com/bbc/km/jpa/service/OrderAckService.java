@@ -3,8 +3,6 @@ package com.bbc.km.jpa.service;
 import com.bbc.km.jpa.entity.OrderAck;
 import com.bbc.km.jpa.repository.OrderAckRepository;
 import org.springframework.stereotype.Service;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -34,6 +32,10 @@ public class OrderAckService {
 
     public void deleteOrder(int id) {
         orderAckRepository.deleteById(id);
+    }
+
+    public List<OrderAck> getUnAckOrders() {
+        return orderAckRepository.findByAckFalse();
     }
 }
 
