@@ -37,6 +37,12 @@ public class PlateService extends CRUDService<String, Plate> {
         return builder.toString();
     }
 
+    @Override
+    protected List<String> validateAllOnCreate(List<Plate> plates) {
+        // todo
+        return List.of();
+    }
+
     public void decrementCounterById(String id) {
         Optional<Plate> optionalItem = repository.findById(id);
 

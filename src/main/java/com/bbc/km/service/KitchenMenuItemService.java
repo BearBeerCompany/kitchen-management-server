@@ -54,6 +54,12 @@ public class KitchenMenuItemService extends CRUDService<String, KitchenMenuItem>
     }
 
     @Override
+    protected List<String> validateAllOnCreate(List<KitchenMenuItem> kitchenMenuItems) {
+        // todo
+        return List.of();
+    }
+
+    @Override
     protected String validateOnUpdate(KitchenMenuItem dto) {
         StringBuilder builder = new StringBuilder();
 

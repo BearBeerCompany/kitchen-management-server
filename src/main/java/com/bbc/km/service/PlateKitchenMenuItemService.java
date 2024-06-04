@@ -210,6 +210,12 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     }
 
     @Override
+    protected List<String> validateAllOnCreate(List<PlateKitchenMenuItem> plateKitchenMenuItems) {
+        // todo
+        return List.of();
+    }
+
+    @Override
     protected String validateOnUpdate(PlateKitchenMenuItem dto) {
         StringBuilder builder = new StringBuilder();
 

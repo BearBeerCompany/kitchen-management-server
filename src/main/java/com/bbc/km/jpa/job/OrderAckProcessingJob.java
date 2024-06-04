@@ -82,7 +82,7 @@ public class OrderAckProcessingJob {
         result.setOrderNumber(order.getOrderNumber());
         result.setTableNumber(order.getTableNumber());
         result.setClientName(order.getClientName());
-        result.setTakeAway(order.isTakeAway());
+        result.setTakeAway(order.getTakeAway());
         result.setNotes(order.getOrderNotes()); // todo capire quali usare, se globali o specifiche
         // todo createdDate
         return result;
