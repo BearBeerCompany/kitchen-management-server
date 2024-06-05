@@ -44,26 +44,32 @@ public class OrderAckProcessingJob {
         // Scansiona i record non confermati
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
         LocalDateTime currentDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
+        System.out.println("OrderAckProcessingJob::processOrders start " + currentDateTime.format(dateTimeFormatter) + ", #unacknowledgedOrders: " + unacknowledgedOrders.size());
 
-        // Verifica se i record non confermati superano l'intervallo temporale stabilito
-        for (OrderAck order : unacknowledgedOrders) {
-            if (isTimeElapsed(order, currentDateTime)) {
-                // Imposta la conferma su true e salva il record aggiornato nel database
-                order.setAck(true);
-                orderAckService.saveOrder(order);
+        if (!unacknowledgedOrders.isEmpty()) {
+            // Verifica se i record non confermati superano l'intervallo temporale stabilito
+            for (OrderAck order : unacknowledgedOrders) {
+                if (isTimeElapsed(order, currentDateTime)) {
+                    // Imposta la conferma su true e salva il record aggiornato nel database
+                    order.setAck(true);
+                    orderAckService.saveOrder(order);
 
-                // Notifica il FE tramite web socket
-                PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(order);
-                for (int i = 0; i < order.getQuantity(); i++) {
-                    PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+                    // Notifica il FE tramite web socket
+                    PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(order);
+                    for (int i = 0; i < order.getQuantity(); i++) {
+                        PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
 
-                    PKMINotification notification = new PKMINotification();
-                    notification.setType(PKMINotificationType.PKMI_ADD);
-                    notification.setPlateKitchenMenuItem(resultDto);
-                    simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                        PKMINotification notification = new PKMINotification();
+                        notification.setType(PKMINotificationType.PKMI_ADD);
+                        notification.setPlateKitchenMenuItem(resultDto);
+                        simpMessagingTemplate.convertAndSend(NOTIFICATION_TOPIC, notification);
+                    }
                 }
             }
         }
+
+        System.out.println("OrderAckProcessingJob::processOrders end");
     }
 
     private boolean isTimeElapsed(OrderAck order, LocalDateTime currentDateTime) {
@@ -82,7 +88,7 @@ public class OrderAckProcessingJob {
         result.setOrderNumber(order.getOrderNumber());
         result.setTableNumber(order.getTableNumber());
         result.setClientName(order.getClientName());
-        result.setTakeAway(order.isTakeAway());
+        result.setTakeAway(order.getTakeAway());
         result.setNotes(order.getOrderNotes()); // todo capire quali usare, se globali o specifiche
         // todo createdDate
         return result;

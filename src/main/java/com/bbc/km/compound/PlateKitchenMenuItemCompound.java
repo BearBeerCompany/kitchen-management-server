@@ -83,7 +83,7 @@ public class PlateKitchenMenuItemCompound {
     public PlateKitchenMenuItemDTO update(PlateKitchenMenuItemDTO dto) {
         PlateKitchenMenuItem doc = dto2Doc(dto);
         PlateKitchenMenuItem newDoc = pkmiService.update(doc);
-        plateService.incrementCounterById(dto.getPlate().getId());
+//        plateService.incrementCounterById(dto.getPlate().getId());
         return doc2Dto(newDoc);
     }
 

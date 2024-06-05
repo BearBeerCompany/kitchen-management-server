@@ -33,6 +33,12 @@ public class CategoryService extends CRUDService<String, Category> {
     }
 
     @Override
+    public void deleteAll() {
+        kitchenMenuItemRepository.deleteAll();
+        super.deleteAll();
+    }
+
+    @Override
     protected String validateOnCreate(Category dto) {
         StringBuilder builder = new StringBuilder();
 
@@ -45,6 +51,12 @@ public class CategoryService extends CRUDService<String, Category> {
         }
 
         return builder.toString();
+    }
+
+    @Override
+    protected List<String> validateAllOnCreate(List<Category> dtos) {
+        // todo
+        return List.of();
     }
 
     @Override

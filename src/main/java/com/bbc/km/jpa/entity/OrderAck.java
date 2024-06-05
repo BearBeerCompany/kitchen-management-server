@@ -7,9 +7,9 @@ import javax.persistence.*;
 public class OrderAck {
 
     @Id
-    private int id;
+    private Integer id;
     @Column(name = "order_number")
-    private int orderNumber;
+    private Integer orderNumber;
     @Column(name = "table_number")
     private String tableNumber;
     @Column(name = "insert_date")
@@ -19,37 +19,37 @@ public class OrderAck {
     @Column(name = "client_name")
     private String clientName;
     @Column(name = "take_away")
-    private boolean takeAway;
+    private Boolean takeAway;
     @Column(name = "order_notes")
     private String orderNotes;
-    private int quantity;
+    private Integer quantity;
     @Column(name = "menu_item_id")
-    private int menuItemId;
+    private Integer menuItemId;
     @Column(name = "menu_item_name")
     private String menuItemName;
     @Column(name = "menu_item_notes")
     private String menuItemNotes;
     @Column(name = "category_id")
-    private int categoryId;
+    private Integer categoryId;
     @Column(name = "category_name")
     private String categoryName;
-    private boolean ack;
+    private Boolean ack;
 
     // Getters and setters
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getOrderNumber() {
+    public Integer getOrderNumber() {
         return orderNumber;
     }
 
-    public void setOrderNumber(int orderNumber) {
+    public void setOrderNumber(Integer orderNumber) {
         this.orderNumber = orderNumber;
     }
 
@@ -85,11 +85,11 @@ public class OrderAck {
         this.clientName = clientName;
     }
 
-    public boolean isTakeAway() {
+    public Boolean getTakeAway() {
         return takeAway;
     }
 
-    public void setTakeAway(boolean takeAway) {
+    public void setTakeAway(Boolean takeAway) {
         this.takeAway = takeAway;
     }
 
@@ -101,19 +101,19 @@ public class OrderAck {
         this.orderNotes = orderNotes;
     }
 
-    public int getQuantity() {
+    public Integer getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(Integer quantity) {
         this.quantity = quantity;
     }
 
-    public int getMenuItemId() {
+    public Integer getMenuItemId() {
         return menuItemId;
     }
 
-    public void setMenuItemId(int menuItemId) {
+    public void setMenuItemId(Integer menuItemId) {
         this.menuItemId = menuItemId;
     }
 
@@ -133,11 +133,11 @@ public class OrderAck {
         this.menuItemNotes = menuItemNotes;
     }
 
-    public int getCategoryId() {
+    public Integer getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(int categoryId) {
+    public void setCategoryId(Integer categoryId) {
         this.categoryId = categoryId;
     }
 
@@ -149,11 +149,11 @@ public class OrderAck {
         this.categoryName = categoryName;
     }
 
-    public boolean isAck() {
+    public Boolean getAck() {
         return ack;
     }
 
-    public void setAck(boolean ack) {
+    public void setAck(Boolean ack) {
         this.ack = ack;
     }
 }

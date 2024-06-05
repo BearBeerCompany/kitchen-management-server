@@ -44,6 +44,20 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
         }
     }
 
+    public List<DTO> createAll(List<DTO> dtos) {
+        List<String> errors = validateAllOnCreate(dtos);
+
+        if (errors.isEmpty()) {
+            return repository.insert(dtos);
+        } else {
+            StringBuilder builder = new StringBuilder();
+            for (String error : errors) {
+                builder.append(error).append("\n");
+            }
+            throw new IllegalArgumentException(builder.toString());
+        }
+    }
+
     public DTO update(DTO dto) {
 
         String errors = validateOnUpdate(dto);
@@ -78,7 +92,13 @@ public abstract class CRUDService<ID, DTO extends MongoDocument<ID>> {
         }
     }
 
+    public void deleteAll() {
+        repository.deleteAll();
+    }
+
     protected abstract String validateOnCreate(DTO dto);
+
+    protected abstract List<String> validateAllOnCreate(List<DTO> dtos);
 
     protected abstract String validateOnUpdate(DTO dto);
 }
