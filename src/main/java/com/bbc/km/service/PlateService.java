@@ -76,17 +76,17 @@ public class PlateService extends CRUDService<String, Plate> {
 
         String errors = validateOnUpdate(plate);
 
-        if (errors.length() == 0) {
-            Optional<Plate> optionalItem = repository.findById(plate.getId());
-
-            if (optionalItem.isPresent()) {
-                plate.setSlot(List.of(
-                        optionalItem.get().getSlot().get(0),
-                        plate.getSlot().get(1)));
+        if (errors.isEmpty()) {
+//            Optional<Plate> optionalItem = repository.findById(plate.getId());
+//
+//            if (optionalItem.isPresent()) {
+//                plate.setSlot(List.of(
+//                        optionalItem.get().getSlot().get(0),
+//                        plate.getSlot().get(1)));
                 return repository.save(plate);
-            } else {
-                throw new ObjectNotFoundException(plate.getId());
-            }
+//            } else {
+//                throw new ObjectNotFoundException(plate.getId());
+//            }
         } else {
             throw new RuntimeException(errors);
         }
