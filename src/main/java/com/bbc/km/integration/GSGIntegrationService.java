@@ -7,6 +7,7 @@ import com.bbc.km.jpa.repository.TipologiaRepository;
 import com.bbc.km.model.Category;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.model.Plate;
+import com.bbc.km.repository.PlateRepository;
 import com.bbc.km.service.CategoryService;
 import com.bbc.km.service.KitchenMenuItemService;
 import com.bbc.km.service.PlateKitchenMenuItemService;
@@ -25,19 +26,19 @@ public class GSGIntegrationService {
     private PlateKitchenMenuItemService pkmiService;
     private CategoryService categoryService;
     private KitchenMenuItemService kmiService;
-    private PlateService plateService;
+    private PlateRepository plateRepository;
     private TipologiaRepository tipologiaRepository;
 
     public GSGIntegrationService(
             PlateKitchenMenuItemService pkmiService,
             CategoryService categoryService,
             KitchenMenuItemService kmiService,
-            PlateService plateService,
+            PlateRepository plateRepository,
             TipologiaRepository tipologiaRepository) {
         this.pkmiService = pkmiService;
         this.categoryService = categoryService;
         this.kmiService = kmiService;
-        this.plateService = plateService;
+        this.plateRepository = plateRepository;
         this.tipologiaRepository = tipologiaRepository;
     }
 
@@ -47,16 +48,16 @@ public class GSGIntegrationService {
         // clean categories and menu items
         categoryService.deleteAll();
         // retrieve plates and clean slots
-        List<Plate> plates = plateService.getAll();
+        List<Plate> plates = plateRepository.findAll();
         for (Plate plate : plates) {
             Integer plateOrders = plate.getSlot().get(0);
             if (plateOrders > 0) {
                 plate.getSlot().set(0, 0);
-                plateService.update(plate);
+                plateRepository.save(plate);
             }
         }
         // retrieve categories and menu items from GSG
-        List<Tipologia> tipologiaList = this.tipologiaRepository.findAll();
+        List<Tipologia> tipologiaList = this.tipologiaRepository.findAll().stream().filter(Tipologia::getVisibile).collect(Collectors.toList());
         List<Category> createdCategories = new ArrayList<>();
         List<KitchenMenuItem> kmiList = new ArrayList<>();
         if (!tipologiaList.isEmpty()) {
@@ -89,6 +90,7 @@ public class GSGIntegrationService {
         Category category = new Category();
         category.setExternalId(tipologia.getId());
         category.setName(tipologia.getDescrizione());
+        category.setDescription(tipologia.getDescrizione());
         category.setVisible(tipologia.getVisibile());
         category.setColor(String.valueOf(tipologia.getSfondo())); // todo capire meglio conversione
         return category;
