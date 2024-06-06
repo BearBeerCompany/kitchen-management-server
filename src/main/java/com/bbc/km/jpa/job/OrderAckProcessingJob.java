@@ -82,11 +82,13 @@ public class OrderAckProcessingJob {
         String orderDateTime = order.getInsertDate() + " " + insertTime;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
         LocalDateTime orderLocalDateTime = LocalDateTime.parse(orderDateTime, dateTimeFormatter);
-        boolean isElapsed = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS) > interval;
-        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #unacknowledgedOrders: {}",
+        Long diff = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS);
+        boolean isElapsed = diff > interval;
+        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #currentDateTime: {}, diff {}",
                 isElapsed,
                 orderLocalDateTime.format(dateTimeFormatter),
-                currentDateTime.format(dateTimeFormatter));
+                currentDateTime.format(dateTimeFormatter),
+                diff);
         return isElapsed;
     }
 
