@@ -48,7 +48,7 @@ public class OrderAckProcessingJob {
     public void processOrders() {
         // Scansiona i record non confermati
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
-        ZonedDateTime currentDateTime = ZonedDateTime.now();
+        ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
 //        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
 
         LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime, unacknowledgedOrders.size());
