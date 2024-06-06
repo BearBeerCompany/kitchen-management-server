@@ -28,7 +28,7 @@ public class OrderAckProcessingJob {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OrderAckProcessingJob.class);
     private static final String NOTIFICATION_TOPIC = "/topic/pkmi";
-    private final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+    private final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
 
     @Value("${application.jobs.order-ack.interval:120000}")
     private Integer interval;
@@ -78,7 +78,8 @@ public class OrderAckProcessingJob {
 
     private boolean isTimeElapsed(OrderAck order, LocalDateTime currentDateTime) {
         // Implementa la logica per verificare se è trascorso un intervallo di tempo sufficiente
-        String orderDateTime = order.getInsertDate() + " " + order.getInsertTime();
+        String insertTime = order.getInsertTime().substring(0, order.getInsertTime().indexOf('.'));
+        String orderDateTime = order.getInsertDate() + " " + insertTime;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
         LocalDateTime orderLocalDateTime = LocalDateTime.parse(orderDateTime, dateTimeFormatter);
         boolean isElapsed = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS) > interval;
