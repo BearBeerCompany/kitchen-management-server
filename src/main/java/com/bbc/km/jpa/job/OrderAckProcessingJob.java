@@ -49,9 +49,9 @@ public class OrderAckProcessingJob {
         // Scansiona i record non confermati
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
         ZonedDateTime currentDateTime = ZonedDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
+//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
 
-        LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime.format(dateTimeFormatter), unacknowledgedOrders.size());
+        LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime, unacknowledgedOrders.size());
 
         if (!unacknowledgedOrders.isEmpty()) {
             // Verifica se i record non confermati superano l'intervallo temporale stabilito
@@ -90,8 +90,8 @@ public class OrderAckProcessingJob {
         boolean isElapsed = diff > interval;
         LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, zonedDateTime @ {}, #currentDateTime: {}, diff {}",
                 isElapsed,
-                zonedDateTime.format(dateTimeFormatter),
-                currentDateTime.format(dateTimeFormatter),
+                zonedDateTime, //.format(dateTimeFormatter),
+                currentDateTime, //.format(dateTimeFormatter),
                 diff);
         return isElapsed;
     }
