@@ -81,7 +81,12 @@ public class OrderAckProcessingJob {
         String orderDateTime = order.getInsertDate() + " " + order.getInsertTime();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
         LocalDateTime orderLocalDateTime = LocalDateTime.parse(orderDateTime, dateTimeFormatter);
-        return orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS) > interval;
+        boolean isElapsed = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS) > interval;
+        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #unacknowledgedOrders: {}",
+                isElapsed,
+                orderLocalDateTime.format(dateTimeFormatter),
+                currentDateTime.format(dateTimeFormatter));
+        return isElapsed;
     }
 
     private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(OrderAck order) {
