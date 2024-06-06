@@ -9,6 +9,8 @@ import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.service.KitchenMenuItemService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -24,6 +26,7 @@ import java.util.Locale;
 @Component
 public class OrderAckProcessingJob {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrderAckProcessingJob.class);
     private static final String NOTIFICATION_TOPIC = "/topic/pkmi";
     private final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
 
@@ -45,7 +48,8 @@ public class OrderAckProcessingJob {
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
         LocalDateTime currentDateTime = LocalDateTime.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
-        System.out.println("OrderAckProcessingJob::processOrders start " + currentDateTime.format(dateTimeFormatter) + ", #unacknowledgedOrders: " + unacknowledgedOrders.size());
+
+        LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime.format(dateTimeFormatter), unacknowledgedOrders.size());
 
         if (!unacknowledgedOrders.isEmpty()) {
             // Verifica se i record non confermati superano l'intervallo temporale stabilito
@@ -69,7 +73,7 @@ public class OrderAckProcessingJob {
             }
         }
 
-        System.out.println("OrderAckProcessingJob::processOrders end");
+        LOGGER.info("OrderAckProcessingJob::processOrders end");
     }
 
     private boolean isTimeElapsed(OrderAck order, LocalDateTime currentDateTime) {
