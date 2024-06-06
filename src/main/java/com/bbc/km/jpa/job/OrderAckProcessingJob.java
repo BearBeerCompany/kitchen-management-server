@@ -18,6 +18,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -46,7 +48,7 @@ public class OrderAckProcessingJob {
     public void processOrders() {
         // Scansiona i record non confermati
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
-        LocalDateTime currentDateTime = LocalDateTime.now();
+        ZonedDateTime currentDateTime = ZonedDateTime.now();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
 
         LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime.format(dateTimeFormatter), unacknowledgedOrders.size());
@@ -76,17 +78,19 @@ public class OrderAckProcessingJob {
         LOGGER.info("OrderAckProcessingJob::processOrders end");
     }
 
-    private boolean isTimeElapsed(OrderAck order, LocalDateTime currentDateTime) {
+    private boolean isTimeElapsed(OrderAck order, ZonedDateTime currentDateTime) {
         // Implementa la logica per verificare se è trascorso un intervallo di tempo sufficiente
         String insertTime = order.getInsertTime().substring(0, order.getInsertTime().indexOf('.'));
         String orderDateTime = order.getInsertDate() + " " + insertTime;
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
         LocalDateTime orderLocalDateTime = LocalDateTime.parse(orderDateTime, dateTimeFormatter);
-        Long diff = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS);
+        ZoneId zoneId = ZoneId.of("Europe/Rome");
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(orderLocalDateTime, zoneId);
+        Long diff = zonedDateTime.until(currentDateTime, ChronoUnit.MILLIS);
         boolean isElapsed = diff > interval;
-        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #currentDateTime: {}, diff {}",
+        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, zonedDateTime @ {}, #currentDateTime: {}, diff {}",
                 isElapsed,
-                orderLocalDateTime.format(dateTimeFormatter),
+                zonedDateTime.format(dateTimeFormatter),
                 currentDateTime.format(dateTimeFormatter),
                 diff);
         return isElapsed;
