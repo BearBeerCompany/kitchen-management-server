@@ -84,7 +84,7 @@ public class OrderAckProcessingJob {
         LocalDateTime orderLocalDateTime = LocalDateTime.parse(orderDateTime, dateTimeFormatter);
         Long diff = orderLocalDateTime.until(currentDateTime, ChronoUnit.MILLIS);
         boolean isElapsed = diff > interval;
-        LOGGER.debug("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #currentDateTime: {}, diff {}",
+        LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, orderLocalDateTime @ {}, #currentDateTime: {}, diff {}",
                 isElapsed,
                 orderLocalDateTime.format(dateTimeFormatter),
                 currentDateTime.format(dateTimeFormatter),
