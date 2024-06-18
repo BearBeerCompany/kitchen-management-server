@@ -34,6 +34,8 @@ public class OrderAckProcessingJob {
 
     @Value("${application.jobs.order-ack.interval:120000}")
     private Integer interval;
+    @Value("${application.menu-item-notes-separator:/}")
+    private String menuItemNoteSeparator;
 
     @Autowired
     private PlateKitchenMenuItemCompound pkmiCompound;
@@ -49,8 +51,6 @@ public class OrderAckProcessingJob {
         // Scansiona i record non confermati
         List<OrderAck> unacknowledgedOrders = orderAckService.getUnAckOrders();
         ZonedDateTime currentDateTime = ZonedDateTime.now(ZoneId.of("Europe/Rome"));
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT, Locale.ITALY);
-
         LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime, unacknowledgedOrders.size());
 
         if (!unacknowledgedOrders.isEmpty()) {
@@ -64,6 +64,11 @@ public class OrderAckProcessingJob {
                     // Notifica il FE tramite web socket
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(order);
                     for (int i = 0; i < order.getQuantity(); i++) {
+                        if (!order.getMenuItemNotes().isEmpty()) {
+                            String[] menuItemNotes = order.getMenuItemNotes().split(menuItemNoteSeparator);
+                            this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
+                        }
+
                         PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
 
                         PKMINotification notification = new PKMINotification();
@@ -90,8 +95,8 @@ public class OrderAckProcessingJob {
         boolean isElapsed = diff > interval;
         LOGGER.info("OrderAckProcessingJob::isTimeElapsed {}, zonedDateTime @ {}, #currentDateTime: {}, diff {}",
                 isElapsed,
-                zonedDateTime, //.format(dateTimeFormatter),
-                currentDateTime, //.format(dateTimeFormatter),
+                zonedDateTime,
+                currentDateTime,
                 diff);
         return isElapsed;
     }
@@ -105,8 +110,14 @@ public class OrderAckProcessingJob {
         result.setTableNumber(order.getTableNumber());
         result.setClientName(order.getClientName());
         result.setTakeAway(order.getTakeAway());
-        result.setNotes(order.getOrderNotes()); // todo capire quali usare, se globali o specifiche
-        // todo createdDate
+        result.setOrderNotes(order.getOrderNotes());
         return result;
+    }
+
+    private void setMenuItemNotes(PlateKitchenMenuItemDTO pkmiDto, String[] notes, int i) {
+        if (notes.length > 0) {
+            String currentNote = (i < notes.length) ? notes[i] : "";
+            pkmiDto.setNotes(currentNote);
+        }
     }
 }

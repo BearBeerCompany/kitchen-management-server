@@ -22,7 +22,7 @@ public class PlateKitchenMenuItemRepository {
     private final static ProjectionOperation DTO_PROJECTION = project()
             .and(ArrayOperators.ArrayElemAt.arrayOf("plate").elementAt(0)).as("plate")
             .and(ArrayOperators.ArrayElemAt.arrayOf("menuItem").elementAt(0)).as("menuItem")
-            .andInclude("status", "notes", "clientName", "tableNumber", "orderNumber", "createdDate");
+            .andInclude("status", "notes", "orderNotes", "takeAway", "clientName", "tableNumber", "orderNumber", "createdDate");
 
     private final MongoTemplate mongoTemplate;
 
