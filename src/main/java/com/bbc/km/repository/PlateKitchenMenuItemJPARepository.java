@@ -29,6 +29,8 @@ public interface PlateKitchenMenuItemJPARepository extends MongoRepository<Plate
     String PKMI_DTO_PROJECTION = "{'$project': " +
             "{'status': 1," +
             "'notes': 1," +
+            "'orderNotes': 1," +
+            "'takeAway': 1," +
             "'clientName': 1," +
             "'tableNumber': 1," +
             "'orderNumber': 1," +

@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +44,9 @@ public class ServletContextListenerImpl implements ServletContextListener {
     private final PGConnection pgConnection;
 
     private boolean isChannelOpen = false;
+
+    @Value("${application.menu-item-notes-separator:/}")
+    private String menuItemNoteSeparator;
     
     @Autowired
     private PlateKitchenMenuItemCompound pkmiCompound;
@@ -75,6 +79,11 @@ public class ServletContextListenerImpl implements ServletContextListener {
 
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
+                        if (!notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
+                            String[] menuItemNotes = notifyDTO.getItem().getMenuItemNotes().split(menuItemNoteSeparator);
+                            this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
+                        }
+
                         PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
 
                         PKMINotification notification = new PKMINotification();
@@ -87,23 +96,24 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 }
             }
 
+            private void setMenuItemNotes(PlateKitchenMenuItemDTO pkmiDto, String[] notes, int i) {
+                if (notes.length > 0) {
+                    String currentNote = (i < notes.length) ? notes[i] : "";
+                    pkmiDto.setNotes(currentNote.trim());
+                }
+            }
+
             private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(PlateOrdersNotifyItem notifyItem) {
                 PlateKitchenMenuItemDTO result = new PlateKitchenMenuItemDTO();
                 KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyItem.getMenuItemId());
 
-                // todo capire meglio come gestire category e menuItem
-//                KitchenMenuItem kmi = new KitchenMenuItem();
-//                kmi.setId(String.valueOf(notifyItem.getMenuItemId()));
-//                kmi.setName(notifyItem.getMenuItemName());
-//                kmi.setCategoryId(String.valueOf(notifyItem.getCategoryId()));
                 result.setMenuItem(kmi);
                 result.setStatus(ItemStatus.TODO);
                 result.setOrderNumber(notifyItem.getOrderNumber());
                 result.setTableNumber(notifyItem.getTableNumber());
                 result.setClientName(notifyItem.getClientName());
                 result.setTakeAway(notifyItem.getTakeAway());
-                result.setNotes(notifyItem.getOrderNotes()); // todo capire quali usare, se globali o specifiche
-                // todo createdDate
+                result.setOrderNotes(notifyItem.getOrderNotes());
                 return result;
             }
         });
