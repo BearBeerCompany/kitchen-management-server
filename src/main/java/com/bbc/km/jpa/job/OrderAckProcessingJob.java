@@ -64,7 +64,7 @@ public class OrderAckProcessingJob {
                     // Notifica il FE tramite web socket
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(order);
                     for (int i = 0; i < order.getQuantity(); i++) {
-                        if (!order.getMenuItemNotes().isEmpty()) {
+                        if (order.getMenuItemNotes() != null && !order.getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = order.getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
                         }
