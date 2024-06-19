@@ -79,7 +79,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
 
                     PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
-                        if (!notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
+                        if (notifyDTO.getItem().getMenuItemNotes() != null && !notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = notifyDTO.getItem().getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
                         }
