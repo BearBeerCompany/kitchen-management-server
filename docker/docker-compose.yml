@@ -1,6 +1,7 @@
 services:
   mongo:
     image: mongo
+    container_name: mongo_db
     restart: no
     ports:
       - "${MONGO_HOST_PORT}:27017"
@@ -14,6 +15,7 @@ services:
 
   postgres:
     image: postgres:11.9
+    container_name: postgres_db
     restart: no
     shm_size: 128mb
     ports:
