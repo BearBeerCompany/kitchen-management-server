@@ -2,6 +2,7 @@ package com.bbc.km.model;
 
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Document("plate")
@@ -13,6 +14,12 @@ public class Plate extends MongoDocument<String> {
     private String manager;
     private List<Integer> slot = List.of(0,0);
     private Boolean enabled = true;
+    /**
+     * List of categories associated with current plate for automatic order insertion.
+     *
+     * @see <a href="https://github.com/BearBeerCompany/kitchen-management-server/issues/56">Feature Request #56</a>
+     */
+    private List<String> categories = new LinkedList<>();
 
     public String getName() {
         return name;
@@ -60,5 +67,13 @@ public class Plate extends MongoDocument<String> {
 
     public void setEnabled(Boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public List<String> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
     }
 }

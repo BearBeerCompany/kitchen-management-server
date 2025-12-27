@@ -3,23 +3,30 @@ package com.bbc.km.service;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.exception.ObjectNotFoundException;
 import com.bbc.km.exception.PlateNotEmptyException;
+import com.bbc.km.model.Category;
 import com.bbc.km.model.Plate;
+import com.bbc.km.repository.CategoryRepository;
 import com.bbc.km.repository.PlateRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class PlateService extends CRUDService<String, Plate> {
 
     private final PlateKitchenMenuItemService plateKitchenMenuItemService;
+    private final CategoryRepository categoryRepository;
 
     public PlateService(PlateRepository plateRepository,
-                        @Lazy PlateKitchenMenuItemService plateKitchenMenuItemService) {
+                        final @Lazy PlateKitchenMenuItemService plateKitchenMenuItemService,
+                        final @Lazy CategoryRepository categoryRepository) {
         super(plateRepository);
         this.plateKitchenMenuItemService = plateKitchenMenuItemService;
+        this.categoryRepository = categoryRepository;
     }
 
     @Override
@@ -33,14 +40,55 @@ public class PlateService extends CRUDService<String, Plate> {
         if (dto.getColor() == null) {
             builder.append("Color cannot be null!");
         }
+        // Check categories if exists
+        if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
+            checkCategoryIdsValid(dto.getCategories(), builder);
+        }
 
         return builder.toString();
     }
 
     @Override
     protected List<String> validateAllOnCreate(List<Plate> plates) {
-        // todo
-        return List.of();
+        throw new UnsupportedOperationException("Plate multiple validation not supported");
+    }
+
+    @Override
+    protected String validateOnUpdate(Plate dto) {
+        StringBuilder builder = new StringBuilder();
+
+        if (dto.getId() == null) {
+            builder.append("Id cannot be null!");
+        }
+
+        if (dto.getName() == null) {
+            builder.append("Name cannot be null!");
+        }
+
+        if (dto.getColor() == null) {
+            builder.append("Color cannot be null!");
+        }
+        // Check categories if exists
+        if (dto.getCategories() != null && !dto.getCategories().isEmpty()) {
+            checkCategoryIdsValid(dto.getCategories(), builder);
+        }
+
+        return builder.toString();
+    }
+
+    private void checkCategoryIdsValid(final List<String> categoryIds, final StringBuilder messageBuilder) {
+
+        final List<CategoryRepository.CategoryIdProjection> existingProjections = categoryRepository.findIdsByIdIn(categoryIds);
+        // Extract IDs into a Set for fast lookup
+        Set<String> existingIds = existingProjections.stream()
+                .map(CategoryRepository.CategoryIdProjection::getId)
+                .collect(Collectors.toSet());
+
+        for (String id : categoryIds) {
+            if (!existingIds.contains(id)) {
+                messageBuilder.append(String.format("Missing category ID: %s ", id));
+            }
+        }
     }
 
     public void decrementCounterById(String id) {
@@ -90,25 +138,6 @@ public class PlateService extends CRUDService<String, Plate> {
         } else {
             throw new RuntimeException(errors);
         }
-    }
-
-    @Override
-    protected String validateOnUpdate(Plate dto) {
-        StringBuilder builder = new StringBuilder();
-
-        if (dto.getId() == null) {
-            builder.append("Id cannot be null!");
-        }
-
-        if (dto.getName() == null) {
-            builder.append("Name cannot be null!");
-        }
-
-        if (dto.getColor() == null) {
-            builder.append("Color cannot be null!");
-        }
-
-        return builder.toString();
     }
 
     public Plate patchEnable(final String id, final Boolean enable) {
