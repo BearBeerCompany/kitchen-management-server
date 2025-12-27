@@ -32,3 +32,6 @@ build/
 ### VS Code ###
 .vscode/
 *.sh
+
+# Local env
+.env
