@@ -33,6 +33,7 @@ application:
       fixedDelay: 60000
       interval: 120000
   menu-item-notes-separator: /
+  enable-orders-auto-insert: false
 logging:
   level:
     org:
