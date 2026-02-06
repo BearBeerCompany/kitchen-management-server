@@ -20,6 +20,7 @@ public class PlateService extends CRUDService<String, Plate> {
 
     private final PlateKitchenMenuItemService plateKitchenMenuItemService;
     private final CategoryRepository categoryRepository;
+    private final PlateRepository plateRepository;
 
     public PlateService(PlateRepository plateRepository,
                         final @Lazy PlateKitchenMenuItemService plateKitchenMenuItemService,
@@ -151,4 +152,22 @@ public class PlateService extends CRUDService<String, Plate> {
         plate.setEnabled(enable);
         return super.update(plate);
     }
+
+    public Plate findFirstFreePlate(String categoryId) {
+        PlateRepository plateRepository = (PlateRepository) repository;
+        return plateRepository.findFreePlatesByCategory(categoryId, Sort.by("slot.0").ascending()).stream().findFirst();
+    }
+
+    public Plate findCandidatePlate(String categoryId) {
+        PlateRepository plateRepository = (PlateRepository) repository;
+        Sort sort = Sort.by(
+            Sort.Order.asc("slot.0"),   // meno carica
+            Sort.Order.desc("slot.1")   // a parità, più capiente
+        );
+        return plateRepository.findCandidatePlates(categoryId, Sort.by("slot.0").ascending())
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No plate associated to category " + categoryId));
+    }
+
 }

@@ -8,6 +8,7 @@ import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.jpa.entity.OrderAck;
 import com.bbc.km.service.KitchenMenuItemService;
+import com.bbc.km.service.PlateService;
 import com.bbc.km.jpa.service.OrderAckService;
 import com.bbc.km.websocket.PKMINotification;
 import com.bbc.km.websocket.PKMINotificationType;
@@ -47,6 +48,8 @@ public class ServletContextListenerImpl implements ServletContextListener {
 
     @Value("${application.menu-item-notes-separator:/}")
     private String menuItemNoteSeparator;
+    @Value("${application.enable-orders-auto-insert:false}")
+    private Boolean enableOrdersAutoInsert;
     
     @Autowired
     private PlateKitchenMenuItemCompound pkmiCompound;
@@ -54,6 +57,8 @@ public class ServletContextListenerImpl implements ServletContextListener {
     private KitchenMenuItemService kmiService;
     @Autowired
     private OrderAckService orderAckService;
+    @Autowired
+    private PlateService plateService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
 
@@ -114,6 +119,25 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 result.setClientName(notifyItem.getClientName());
                 result.setTakeAway(notifyItem.getTakeAway());
                 result.setOrderNotes(notifyItem.getOrderNotes());
+
+                // auto order insert
+                if (this.enableOrdersAutoInsert) {
+                    Plate plate = this.retrievePlateForCategory(kmi);
+                    result.setPlate(plate);
+                    // update order status based 
+                    result.setStatus(ItemStatus.PROGRESS);
+                    if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {
+                        LOGGER.info("Plate {} full, queue order into ", plate.getName());
+                        result.setStatus(ItemStatus.TODO);
+                    }
+                }
+
+                return result;
+            }
+
+            private Plate retrievePlateFromCategory(KitchenMenuItem kmi) {
+                String categoryId = kmi.getCategoryId();
+                Plate result = plateService.findCandidatePlate(categoryId);
                 return result;
             }
         });
