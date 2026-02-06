@@ -122,7 +122,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
 
                 // auto order insert
                 if (this.enableOrdersAutoInsert) {
-                    Plate plate = this.retrievePlateForCategory(kmi);
+                    Plate plate = this.retrievePlateFromCategory(kmi);
                     result.setPlate(plate);
                     // update order status based 
                     result.setStatus(ItemStatus.PROGRESS);

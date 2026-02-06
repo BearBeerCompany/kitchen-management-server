@@ -36,6 +36,8 @@ public class OrderAckProcessingJob {
     private Integer interval;
     @Value("${application.menu-item-notes-separator:/}")
     private String menuItemNoteSeparator;
+    @Value("${application.enable-orders-auto-insert:false}")
+    private Boolean enableOrdersAutoInsert;
 
     @Autowired
     private PlateKitchenMenuItemCompound pkmiCompound;
@@ -111,6 +113,19 @@ public class OrderAckProcessingJob {
         result.setClientName(order.getClientName());
         result.setTakeAway(order.getTakeAway());
         result.setOrderNotes(order.getOrderNotes());
+
+        // auto order insert
+        if (this.enableOrdersAutoInsert) {
+            Plate plate = this.retrievePlateFromCategory(kmi);
+            result.setPlate(plate);
+            // update order status based 
+            result.setStatus(ItemStatus.PROGRESS);
+            if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {
+                LOGGER.info("OrderAckProcessingJob::mapPlateKitchenMenuItemDTO - Plate {} full, queue order into ", plate.getName());
+                result.setStatus(ItemStatus.TODO);
+            }
+        }
+
         return result;
     }
 
@@ -120,4 +135,11 @@ public class OrderAckProcessingJob {
             pkmiDto.setNotes(currentNote);
         }
     }
+
+    private Plate retrievePlateFromCategory(KitchenMenuItem kmi) {
+        String categoryId = kmi.getCategoryId();
+        Plate result = plateService.findCandidatePlate(categoryId);
+        return result;
+    }
+    
 }
