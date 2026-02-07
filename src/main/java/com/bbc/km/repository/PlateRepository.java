@@ -33,4 +33,5 @@ public interface PlateRepository extends MongoRepository<Plate, String> {
     )
     List<Plate> findFreePlatesByCategory(String categoryId, Sort sort);
 
+        // Other query methods can be defined here as needed
 }

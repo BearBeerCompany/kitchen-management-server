@@ -6,6 +6,7 @@ import com.bbc.km.dto.notify.PlateOrdersNotifyDTO;
 import com.bbc.km.dto.notify.PlateOrdersNotifyItem;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
+import com.bbc.km.model.Plate;
 import com.bbc.km.jpa.entity.OrderAck;
 import com.bbc.km.service.KitchenMenuItemService;
 import com.bbc.km.service.PlateService;
@@ -121,7 +122,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 result.setOrderNotes(notifyItem.getOrderNotes());
 
                 // auto order insert
-                if (this.enableOrdersAutoInsert) {
+                if (ServletContextListenerImpl.this.enableOrdersAutoInsert) {
                     Plate plate = this.retrievePlateFromCategory(kmi);
                     result.setPlate(plate);
                     // update order status based 
