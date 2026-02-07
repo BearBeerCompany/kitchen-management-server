@@ -17,6 +17,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import org.springframework.data.domain.Sort;
+
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -24,6 +26,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Locale;
+
+import com.bbc.km.model.Plate;
 
 @Component
 public class OrderAckProcessingJob {
@@ -47,6 +51,8 @@ public class OrderAckProcessingJob {
     private OrderAckService orderAckService;
     @Autowired
     private SimpMessagingTemplate simpMessagingTemplate;
+    @Autowired
+    private com.bbc.km.service.PlateService plateService;
 
     @Scheduled(fixedDelayString = "${application.jobs.order-ack.fixedDelay:60000}")
     public void processOrders() {

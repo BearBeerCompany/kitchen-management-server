@@ -9,6 +9,7 @@ import com.bbc.km.repository.CategoryRepository;
 import com.bbc.km.repository.PlateRepository;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,7 @@ public class PlateService extends CRUDService<String, Plate> {
                         final @Lazy PlateKitchenMenuItemService plateKitchenMenuItemService,
                         final @Lazy CategoryRepository categoryRepository) {
         super(plateRepository);
+        this.plateRepository = plateRepository;
         this.plateKitchenMenuItemService = plateKitchenMenuItemService;
         this.categoryRepository = categoryRepository;
     }
@@ -155,7 +157,10 @@ public class PlateService extends CRUDService<String, Plate> {
 
     public Plate findFirstFreePlate(String categoryId) {
         PlateRepository plateRepository = (PlateRepository) repository;
-        return plateRepository.findFreePlatesByCategory(categoryId, Sort.by("slot.0").ascending()).stream().findFirst();
+        return plateRepository.findFreePlatesByCategory(categoryId, Sort.by("slot.0").ascending())
+            .stream()
+            .findFirst()
+            .orElseThrow(() -> new IllegalStateException("No free plate found for category " + categoryId));
     }
 
     public Plate findCandidatePlate(String categoryId) {
