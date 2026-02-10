@@ -46,9 +46,15 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                 currentItems = plate.getSlot().get(0);
                 int maxItems = plate.getSlot().get(1);
 
-                if (currentItems < maxItems) {
+                boolean hasQueuedItems = !((PlateKitchenMenuItemJPARepository) repository).findByPlateIdAndStatusOrderByCreatedDateAsc(
+                    plate.getId(), 
+                    ItemStatus.TODO
+                ).isEmpty();
+                if (!hasQueuedItems && currentItems < maxItems) {
                     plateKitchenMenuItem.setStatus(ItemStatus.PROGRESS);
                     currentItems++;
+                } else {
+                    plateKitchenMenuItem.setStatus(ItemStatus.TODO);
                 }
             } else {
                 throw new PlateOffException("Selected plate is not enabled yet",
@@ -98,7 +104,6 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                     // check if almost one slot is free in the current plate
                     if (currentItems < maxItems) {
                         // there's a free slot in the current plate, increment the items counter
-                        plateKitchenMenuItem.setStatus(ItemStatus.PROGRESS);
                         currentItems++;
                         nextPlate.getSlot().set(0, currentItems);
                         nextPlateChanged = true;
@@ -112,6 +117,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                     currentItems--;
                     nextPlate.getSlot().set(0, currentItems);
                     nextPlateChanged = true;
+                    promoteQueuedItemsIfPossible(nextPlate);
                 }
             }
         } else {
@@ -124,6 +130,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                     currentItems--;
                     previousPlate.getSlot().set(0, currentItems);
                     previousPlateChanged = true;
+                    promoteQueuedItemsIfPossible(previousPlate);
                 }
             }
 
@@ -177,10 +184,38 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             currentItems--;
             plate.getSlot().set(0, currentItems);
             this.plateService.update(plate);
+            promoteQueuedItemsIfPossible(plate);
         }
         statsService.update(plateKitchenMenuItem.getCreatedDate(), plateKitchenMenuItem.getStatus(), null);
         return super.delete(s);
     }
+
+    @Transactional
+    public void promoteQueuedItemsIfPossible(Plate plate) {
+        int current = plate.getSlot().get(0);
+        int max = plate.getSlot().get(1);
+        if (current >= max) {
+            return;
+        }
+
+        List<PlateKitchenMenuItem> queuedItems =
+            repository.findByPlateIdAndStatusOrderByCreatedDateAsc(
+                plate.getId(),
+                ItemStatus.TODO
+            );
+        Iterator<PlateKitchenMenuItem> it = queuedItems.iterator();
+        while (current < max && it.hasNext()) {
+            PlateKitchenMenuItem item = it.next();
+            item.setStatus(ItemStatus.PROGRESS);
+            super.update(item);
+            statsService.update(item.getCreatedDate(), ItemStatus.TODO, ItemStatus.PROGRESS);
+            current++;
+        }
+
+        plate.getSlot().set(0, current);
+        plateService.update(plate);
+    }
+
 
     @Override
     protected String validateOnCreate(PlateKitchenMenuItem dto) {
