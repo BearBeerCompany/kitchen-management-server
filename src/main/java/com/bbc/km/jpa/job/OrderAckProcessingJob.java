@@ -73,18 +73,19 @@ public class OrderAckProcessingJob {
                     order.setAck(true);
                     orderAckService.saveOrder(order);
 
-                    // Notifica il FE tramite web socket
-                    PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(order);
                     for (int i = 0; i < order.getQuantity(); i++) {
+                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(order);
                         if (order.getMenuItemNotes() != null && !order.getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = order.getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
                         }
 
                         // PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+                        LOGGER.info("OrderAckProcessingJob::processOrders create pkmi id {}, plateId: {}, order: {}, table: {}", pkmiDto.getId(), pkmiDto.getPlateId(), pkmiDto.getOrderNumber(), pkmiDto.getTableNumber());
                         PlateKitchenMenuItem result = pkmiService.create(pkmiDto);
                         PlateKitchenMenuItemDTO resultDto = doc2Dto(result);
 
+                        // Notifica il FE tramite web socket
                         PKMINotification notification = new PKMINotification();
                         notification.setType(PKMINotificationType.PKMI_ADD);
                         notification.setPlateKitchenMenuItem(resultDto);
@@ -154,9 +155,9 @@ public class OrderAckProcessingJob {
         result.setOrderNotes(order.getOrderNotes());
 
         // auto order insert
-        if (ServletContextListenerImpl.this.enableOrdersAutoInsert) {
+        if (this.enableOrdersAutoInsert) {
             Plate plate = this.retrievePlateFromCategory(kmi);
-            result.setPlate(plate);
+            result.setPlateId(plate.getId());
             // update order status based 
             // result.setStatus(ItemStatus.PROGRESS);
             // if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {

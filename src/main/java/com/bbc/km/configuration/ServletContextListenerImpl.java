@@ -87,8 +87,8 @@ public class ServletContextListenerImpl implements ServletContextListener {
                         orderAckService.saveOrder(orderAck);
                     }
 
-                    PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(notifyDTO.getItem());
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
+                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(notifyDTO.getItem());
                         if (notifyDTO.getItem().getMenuItemNotes() != null && !notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = notifyDTO.getItem().getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
@@ -156,7 +156,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 // auto order insert
                 if (ServletContextListenerImpl.this.enableOrdersAutoInsert) {
                     Plate plate = this.retrievePlateFromCategory(kmi);
-                    result.setPlate(plate);
+                    result.setPlateId(plate.getId());
                     // update order status based 
                     // result.setStatus(ItemStatus.PROGRESS);
                     // if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {

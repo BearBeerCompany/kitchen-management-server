@@ -8,7 +8,9 @@ import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.repository.PlateKitchenMenuItemJPARepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -199,7 +201,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         }
 
         List<PlateKitchenMenuItem> queuedItems =
-            repository.findByPlateIdAndStatusOrderByCreatedDateAsc(
+                ((PlateKitchenMenuItemJPARepository) repository).findByPlateIdAndStatusOrderByCreatedDateAsc(
                 plate.getId(),
                 ItemStatus.TODO
             );
