@@ -1,14 +1,16 @@
 package com.bbc.km.configuration;
 
-import com.bbc.km.compound.PlateKitchenMenuItemCompound;
+// import com.bbc.km.compound.PlateKitchenMenuItemCompound;
 import com.bbc.km.dto.PlateKitchenMenuItemDTO;
 import com.bbc.km.dto.notify.PlateOrdersNotifyDTO;
 import com.bbc.km.dto.notify.PlateOrdersNotifyItem;
 import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.KitchenMenuItem;
 import com.bbc.km.model.Plate;
+import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.jpa.entity.OrderAck;
 import com.bbc.km.service.KitchenMenuItemService;
+import com.bbc.km.service.PlateKitchenMenuItemService;
 import com.bbc.km.service.PlateService;
 import com.bbc.km.jpa.service.OrderAckService;
 import com.bbc.km.websocket.PKMINotification;
@@ -52,8 +54,10 @@ public class ServletContextListenerImpl implements ServletContextListener {
     @Value("${application.enable-orders-auto-insert:false}")
     private Boolean enableOrdersAutoInsert;
     
+    // @Autowired
+    // private PlateKitchenMenuItemCompound pkmiCompound;
     @Autowired
-    private PlateKitchenMenuItemCompound pkmiCompound;
+    private PlateKitchenMenuItemService pkmiService;
     @Autowired
     private KitchenMenuItemService kmiService;
     @Autowired
@@ -83,14 +87,15 @@ public class ServletContextListenerImpl implements ServletContextListener {
                         orderAckService.saveOrder(orderAck);
                     }
 
-                    PlateKitchenMenuItemDTO pkmiDto = this.mapPlateKitchenMenuItemDTO(notifyDTO.getItem());
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
+                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(notifyDTO.getItem());
                         if (notifyDTO.getItem().getMenuItemNotes() != null && !notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = notifyDTO.getItem().getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
                         }
 
-                        PlateKitchenMenuItemDTO resultDto = pkmiCompound.create(pkmiDto);
+                        PlateKitchenMenuItem result = pkmiService.create(pkmiDto);
+                        PlateKitchenMenuItemDTO resultDto = doc2Dto(result);
 
                         PKMINotification notification = new PKMINotification();
                         notification.setType(PKMINotificationType.PKMI_ADD);
@@ -102,10 +107,10 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 }
             }
 
-            private void setMenuItemNotes(PlateKitchenMenuItemDTO pkmiDto, String[] notes, int i) {
+            private void setMenuItemNotes(PlateKitchenMenuItem pkmi, String[] notes, int i) {
                 if (notes.length > 0) {
                     String currentNote = (i < notes.length) ? notes[i] : "";
-                    pkmiDto.setNotes(currentNote.trim());
+                    pkmi.setNotes(currentNote.trim());
                 }
             }
 
@@ -136,10 +141,61 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 return result;
             }
 
+            private PlateKitchenMenuItem mapPlateKitchenMenuItem(PlateOrdersNotifyItem notifyItem) {
+                PlateKitchenMenuItem result = new PlateKitchenMenuItem();
+                KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyItem.getMenuItemId());
+
+                result.setMenuItemId(kmi.getId());
+                result.setStatus(ItemStatus.TODO);
+                result.setOrderNumber(notifyItem.getOrderNumber());
+                result.setTableNumber(notifyItem.getTableNumber());
+                result.setClientName(notifyItem.getClientName());
+                result.setTakeAway(notifyItem.getTakeAway());
+                result.setOrderNotes(notifyItem.getOrderNotes());
+
+                // auto order insert
+                if (ServletContextListenerImpl.this.enableOrdersAutoInsert) {
+                    Plate plate = this.retrievePlateFromCategory(kmi);
+                    result.setPlateId(plate.getId());
+                    // update order status based 
+                    // result.setStatus(ItemStatus.PROGRESS);
+                    // if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {
+                    //    LOGGER.info("Plate {} full, queue order into ", plate.getName());
+                    //    result.setStatus(ItemStatus.TODO);
+                    // }
+                }
+
+                return result;
+            }
+
             private Plate retrievePlateFromCategory(KitchenMenuItem kmi) {
                 String categoryId = kmi.getCategoryId();
                 Plate result = plateService.findCandidatePlate(categoryId);
                 return result;
+            }
+
+            private PlateKitchenMenuItemDTO doc2Dto(PlateKitchenMenuItem doc) {
+                PlateKitchenMenuItemDTO dto = new PlateKitchenMenuItemDTO();
+                String menuItemId = doc.getMenuItemId();
+                String plateId = doc.getPlateId();
+
+                // retrieve menuItem data
+                KitchenMenuItem kmiDoc = kmiService.getById(menuItemId);
+                // retrieve plate data
+                Plate plate = (plateId != null) ? plateService.getById(plateId) : null;
+
+                dto.setId(doc.getId());
+                dto.setMenuItem(kmiDoc);
+                dto.setPlate(plate);
+                dto.setOrderNumber(doc.getOrderNumber());
+                dto.setClientName(doc.getClientName());
+                dto.setStatus(doc.getStatus());
+                dto.setTableNumber(doc.getTableNumber());
+                dto.setNotes(doc.getNotes());
+                dto.setOrderNotes(doc.getOrderNotes());
+                dto.setCreatedDate(doc.getCreatedDate());
+                dto.setTakeAway(doc.getTakeAway());
+                return dto;
             }
         });
     }
