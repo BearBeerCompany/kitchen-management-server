@@ -7,12 +7,16 @@ import com.bbc.km.model.ItemStatus;
 import com.bbc.km.model.Plate;
 import com.bbc.km.model.PlateKitchenMenuItem;
 import com.bbc.km.repository.PlateKitchenMenuItemJPARepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Service
 public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitchenMenuItem> {
@@ -20,12 +24,27 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
     private final PlateService plateService;
     private final StatsService statsService;
 
+    @Value("${application.priority-order-notes-regex}")
+    private String priorityOrderNotesRegex;
+
+    private Pattern priorityPattern;
+
     protected PlateKitchenMenuItemService(PlateKitchenMenuItemJPARepository repository,
                                           PlateService plateService,
                                           StatsService statsService) {
         super(repository);
         this.plateService = plateService;
         this.statsService = statsService;
+    }
+
+    @PostConstruct
+    private void init() {
+        priorityPattern = Pattern.compile(priorityOrderNotesRegex);
+    }
+
+    private boolean isPriorityItem(PlateKitchenMenuItem item) {
+        String notes = item.getOrderNotes();
+        return notes != null && !notes.isBlank() && priorityPattern.matcher(notes).find();
     }
 
     public List<PlateKitchenMenuItemDTO> findByPlateId(String id) {
@@ -205,6 +224,7 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
                 plate.getId(),
                 ItemStatus.TODO
             );
+        queuedItems.sort(Comparator.comparingInt(item -> isPriorityItem(item) ? 0 : 1));
         Iterator<PlateKitchenMenuItem> it = queuedItems.iterator();
         while (current < max && it.hasNext()) {
             PlateKitchenMenuItem item = it.next();
