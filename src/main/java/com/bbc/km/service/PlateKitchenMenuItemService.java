@@ -42,9 +42,12 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
         priorityPattern = Pattern.compile(priorityOrderNotesRegex);
     }
 
-    private boolean isPriorityItem(PlateKitchenMenuItem item) {
-        String notes = item.getOrderNotes();
+    public boolean isPriorityNotes(String notes) {
         return notes != null && !notes.isBlank() && priorityPattern.matcher(notes).find();
+    }
+
+    private boolean isPriorityItem(PlateKitchenMenuItem item) {
+        return isPriorityNotes(item.getOrderNotes());
     }
 
     public List<PlateKitchenMenuItemDTO> findByPlateId(String id) {
