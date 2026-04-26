@@ -73,4 +73,6 @@ public interface PlateKitchenMenuItemJPARepository extends MongoRepository<Plate
     List<PlateKitchenMenuItemDTO> findByPlateIdNull();
 
     List<PlateKitchenMenuItem> findByPlateIdAndStatusOrderByCreatedDateAsc(String plateId, ItemStatus status);
+
+    long countByPlateIdAndStatus(String plateId, ItemStatus status);
 }

@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,6 +67,7 @@ public class OrderAckProcessingJob {
         LOGGER.info("OrderAckProcessingJob::processOrders start @ {}, #unacknowledgedOrders: {}", currentDateTime, unacknowledgedOrders.size());
 
         if (!unacknowledgedOrders.isEmpty()) {
+            unacknowledgedOrders.sort(Comparator.comparingInt(o -> pkmiService.isPriorityNotes(o.getOrderNotes()) ? 0 : 1));
             // Verifica se i record non confermati superano l'intervallo temporale stabilito
             for (OrderAck order : unacknowledgedOrders) {
                 if (isTimeElapsed(order, currentDateTime)) {
