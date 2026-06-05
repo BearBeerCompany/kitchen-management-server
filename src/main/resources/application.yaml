@@ -34,6 +34,7 @@ application:
       interval: 120000
   menu-item-notes-separator: /
   enable-orders-auto-insert: false
+  priority-order-notes-regex: '(?i)\b(bambino|bambini|urgente)\b'
 logging:
   level:
     org:
