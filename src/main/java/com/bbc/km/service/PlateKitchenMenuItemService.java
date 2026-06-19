@@ -84,6 +84,9 @@ public class PlateKitchenMenuItemService extends CRUDService<String, PlateKitche
             }
         }
 
+        if (plateKitchenMenuItem.getTakeAway() && plateKitchenMenuItem.getTableNumber() == null) {
+            plateKitchenMenuItem.setTableNumber("ASP");
+        }
         PlateKitchenMenuItem result = super.create(plateKitchenMenuItem);
         if (result.getStatus().equals(ItemStatus.PROGRESS)) {
             refreshSlot(plate);
