@@ -71,12 +71,22 @@ public class OrderAckProcessingJob {
             // Verifica se i record non confermati superano l'intervallo temporale stabilito
             for (OrderAck order : unacknowledgedOrders) {
                 if (isTimeElapsed(order, currentDateTime)) {
+                    KitchenMenuItem kmi = kmiService.getItemByExternalId(order.getMenuItemId());
+                    if (kmi == null) {
+                        // The item referenced by GSG is not present in this application (e.g. menu not
+                        // imported yet, or a non-visible Tipologia). Leave the order unacknowledged so it is
+                        // retried on the next cycle once the menu/mapping is fixed, instead of failing with NPE.
+                        LOGGER.warn("OrderAckProcessingJob::processOrders - no kitchen menu item found for external id {} (order {}, table {}); leaving order unacknowledged for retry",
+                                order.getMenuItemId(), order.getOrderNumber(), order.getTableNumber());
+                        continue;
+                    }
+
                     // Imposta la conferma su true e salva il record aggiornato nel database
                     order.setAck(true);
                     orderAckService.saveOrder(order);
 
                     for (int i = 0; i < order.getQuantity(); i++) {
-                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(order);
+                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(order, kmi);
                         if (order.getMenuItemNotes() != null && !order.getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = order.getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
@@ -118,35 +128,8 @@ public class OrderAckProcessingJob {
         return isElapsed;
     }
 
-    private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(OrderAck order) {
-        PlateKitchenMenuItemDTO result = new PlateKitchenMenuItemDTO();
-        KitchenMenuItem kmi = kmiService.getItemByExternalId(order.getMenuItemId());
-        result.setMenuItem(kmi);
-        result.setStatus(ItemStatus.TODO);
-        result.setOrderNumber(order.getOrderNumber());
-        result.setTableNumber(order.getTableNumber());
-        result.setClientName(order.getClientName());
-        result.setTakeAway(order.getTakeAway());
-        result.setOrderNotes(order.getOrderNotes());
-
-        // auto order insert
-        if (this.enableOrdersAutoInsert) {
-            Plate plate = this.retrievePlateFromCategory(kmi);
-            result.setPlate(plate);
-            // update order status based 
-            result.setStatus(ItemStatus.PROGRESS);
-            if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {
-                LOGGER.info("OrderAckProcessingJob::mapPlateKitchenMenuItemDTO - Plate {} full, queue order into ", plate.getName());
-                result.setStatus(ItemStatus.TODO);
-            }
-        }
-
-        return result;
-    }
-
-    private PlateKitchenMenuItem mapPlateKitchenMenuItem(OrderAck order) {
+    private PlateKitchenMenuItem mapPlateKitchenMenuItem(OrderAck order, KitchenMenuItem kmi) {
         PlateKitchenMenuItem result = new PlateKitchenMenuItem();
-        KitchenMenuItem kmi = kmiService.getItemByExternalId(order.getMenuItemId());
 
         result.setMenuItemId(kmi.getId());
         result.setStatus(ItemStatus.TODO);

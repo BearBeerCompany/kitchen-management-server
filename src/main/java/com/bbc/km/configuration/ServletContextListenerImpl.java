@@ -79,6 +79,16 @@ public class ServletContextListenerImpl implements ServletContextListener {
                     json = OBJECT_MAPPER.readTree(payload);
                     PlateOrdersNotifyDTO notifyDTO = OBJECT_MAPPER.treeToValue(json, PlateOrdersNotifyDTO.class);
 
+                    // resolve the menu item before consuming the order: if the item referenced by GSG is
+                    // not present here (e.g. menu not imported yet), skip WITHOUT acknowledging so the batch
+                    // OrderAckProcessingJob can retry it later, instead of failing with NPE.
+                    KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyDTO.getItem().getMenuItemId());
+                    if (kmi == null) {
+                        LOGGER.warn("ServletContextListenerImpl::notification - no kitchen menu item found for external id {} (order {}, table {}); skipping, will be retried by batch job",
+                                notifyDTO.getItem().getMenuItemId(), notifyDTO.getItem().getOrderNumber(), notifyDTO.getItem().getTableNumber());
+                        return;
+                    }
+
                     // update OrdersAck table in PG
                     Optional<OrderAck> orderAckOp = orderAckService.getOrderById(notifyDTO.getItem().getId());
                     if (orderAckOp.isPresent()) {
@@ -88,7 +98,7 @@ public class ServletContextListenerImpl implements ServletContextListener {
                     }
 
                     for (int i = 0; i < notifyDTO.getItem().getQuantity(); i++) {
-                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(notifyDTO.getItem());
+                        PlateKitchenMenuItem pkmiDto = this.mapPlateKitchenMenuItem(notifyDTO.getItem(), kmi);
                         if (notifyDTO.getItem().getMenuItemNotes() != null && !notifyDTO.getItem().getMenuItemNotes().isEmpty()) {
                             String[] menuItemNotes = notifyDTO.getItem().getMenuItemNotes().split(menuItemNoteSeparator);
                             this.setMenuItemNotes(pkmiDto, menuItemNotes, i);
@@ -114,36 +124,8 @@ public class ServletContextListenerImpl implements ServletContextListener {
                 }
             }
 
-            private PlateKitchenMenuItemDTO mapPlateKitchenMenuItemDTO(PlateOrdersNotifyItem notifyItem) {
-                PlateKitchenMenuItemDTO result = new PlateKitchenMenuItemDTO();
-                KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyItem.getMenuItemId());
-
-                result.setMenuItem(kmi);
-                result.setStatus(ItemStatus.TODO);
-                result.setOrderNumber(notifyItem.getOrderNumber());
-                result.setTableNumber(notifyItem.getTableNumber());
-                result.setClientName(notifyItem.getClientName());
-                result.setTakeAway(notifyItem.getTakeAway());
-                result.setOrderNotes(notifyItem.getOrderNotes());
-
-                // auto order insert
-                if (ServletContextListenerImpl.this.enableOrdersAutoInsert) {
-                    Plate plate = this.retrievePlateFromCategory(kmi);
-                    result.setPlate(plate);
-                    // update order status based 
-                    result.setStatus(ItemStatus.PROGRESS);
-                    if (plate.getSlot().get(0) >= plate.getSlot().get(1)) {
-                        LOGGER.info("Plate {} full, queue order into ", plate.getName());
-                        result.setStatus(ItemStatus.TODO);
-                    }
-                }
-
-                return result;
-            }
-
-            private PlateKitchenMenuItem mapPlateKitchenMenuItem(PlateOrdersNotifyItem notifyItem) {
+            private PlateKitchenMenuItem mapPlateKitchenMenuItem(PlateOrdersNotifyItem notifyItem, KitchenMenuItem kmi) {
                 PlateKitchenMenuItem result = new PlateKitchenMenuItem();
-                KitchenMenuItem kmi = kmiService.getItemByExternalId(notifyItem.getMenuItemId());
 
                 result.setMenuItemId(kmi.getId());
                 result.setStatus(ItemStatus.TODO);
