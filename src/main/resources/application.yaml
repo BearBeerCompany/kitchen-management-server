@@ -22,9 +22,11 @@ spring:
     mongodb:
       database: kitchenmgmt
       uri: mongodb://root:example@mongo:27017/
-    task:
-      scheduling:
-        enabled: true
+  task:
+    scheduling:
+      enabled: true
+      pool:
+        size: 2
 application:
   version: 2.0.0
   title: Kitchen Management Server
@@ -32,6 +34,8 @@ application:
     order-ack:
       fixedDelay: 60000
       interval: 120000
+    listener-health-check:
+      fixedDelay: 30000
   menu-item-notes-separator: /
   enable-orders-auto-insert: false
   priority-order-notes-regex: '(?i)\b(bambino|bambini|urgente)\b'
