@@ -87,7 +87,10 @@ BEGIN
         );
 
         -- invio notifica
-	    EXECUTE FORMAT('NOTIFY plate_orders, ''%s''', v_txt);
+	    -- pg_notify passa il payload come parametro: evita la rottura della stringa quando i campi testo
+	    -- (clientName, orderNotes, menuItemNotes) contengono un apostrofo, ed errore pulito sul limite di
+	    -- 8000 byte del payload. Coerente con la funzione notify_new_order piu' sotto.
+	    PERFORM pg_notify('plate_orders', v_txt);
 	else
 		RAISE NOTICE 'Categoria riga articolo non valida: %', NEW.pos_tipologia;
 	end if;
